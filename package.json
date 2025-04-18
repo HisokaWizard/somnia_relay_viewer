@@ -1,0 +1,35 @@
+{
+  "name": "somnia_relay_viewer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HisokaWizard/somnia_relay_viewer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HisokaWizard/somnia_relay_viewer/issues"
+  },
+  "homepage": "https://github.com/HisokaWizard/somnia_relay_viewer#readme",
+  "description": "",
+  "dependencies": {
+    "@wagmi/connectors": "^5.7.12",
+    "@wagmi/core": "^2.16.7",
+    "@web3modal/react": "2.7.1",
+    "axios": "1.5.1",
+    "ethers": "^6.13.5",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "viem": "2.26.3",
+    "wagmi": "2.14.16"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "4.0.4",
+    "vite": "4.4.9"
+  }
+}
