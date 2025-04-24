@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { getBlockDataByNumber, getSignature } from './utils/apis';
+import { getBlockDataByNumber, getSignature } from '../utils/apis';
 
 const arrowLeft = '<<';
 const arrowRight = '>>';
