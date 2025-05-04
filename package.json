@@ -18,6 +18,8 @@
   "homepage": "https://github.com/HisokaWizard/somnia_relay_viewer#readme",
   "description": "",
   "dependencies": {
+    "@react-three/drei": "9.122.0",
+    "@react-three/fiber": "8.18.0",
     "@wagmi/connectors": "^5.7.12",
     "@wagmi/core": "^2.16.7",
     "@web3modal/react": "2.7.1",
@@ -26,11 +28,11 @@
     "ethers": "^6.13.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-router": "7.5.3",
+    "react-router-dom": "7.5.3",
     "three": "0.176.0",
     "viem": "2.26.3",
-    "wagmi": "2.14.16",
-    "@react-three/drei": "9.122.0",
-    "@react-three/fiber": "8.18.0"
+    "wagmi": "2.14.16"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "4.0.4",

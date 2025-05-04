@@ -1,15 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
-import { PointerLockControls, Plane } from '@react-three/drei';
+import { PointerLockControls, Plane, Html } from '@react-three/drei';
+import { useNavigate } from 'react-router';
 import * as THREE from 'three';
-
-const modules = [
-  { id: 1, name: 'Consensus Mechanism', position: [-2, 0, 0], color: 'blue' },
-  { id: 2, name: 'Database (IceDB)', position: [2, 0, 0], color: 'red' },
-  { id: 3, name: 'EVM Optimization', position: [0, 0, -2], color: 'yellow' },
-  { id: 4, name: 'Ecosystem Partners', position: [2, 0, -2], color: 'green' },
-  { id: 5, name: 'Transaction Visualization', position: [-2, 0, -2], color: 'purple' },
-];
+import { modules } from './modules';
 
 export const SomniaScene = () => {
   const [selectedModule, setSelectedModule] = useState(null);
@@ -20,7 +14,13 @@ export const SomniaScene = () => {
     right: false,
   });
   const moduleMeshes = useRef([]);
-  const { camera } = useThree();
+  const previousHighlighted = useRef(null);
+  const { camera, scene } = useThree();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    scene.background = new THREE.Color('#111111');
+  }, [scene]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -80,7 +80,7 @@ export const SomniaScene = () => {
     };
   }, [camera]);
 
-  useFrame(() => {
+  useFrame((state) => {
     const speed = 0.1;
     const direction = new THREE.Vector3();
     camera.getWorldDirection(direction);
@@ -103,14 +103,41 @@ export const SomniaScene = () => {
       right.crossVectors(direction, camera.up).normalize();
       camera.position.addScaledVector(right, speed);
     }
+
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+    const intersects = raycaster.intersectObjects(moduleMeshes.current);
+    if (intersects.length > 0) {
+      const newHighlighted = intersects[0].object;
+      if (newHighlighted !== previousHighlighted.current) {
+        if (previousHighlighted.current) {
+          previousHighlighted.current.material.emissive.set(0x000000);
+          previousHighlighted.current.material.emissiveIntensity = 0;
+        }
+        newHighlighted.material.emissive.set(0xff0000);
+        newHighlighted.material.emissiveIntensity = 1;
+        previousHighlighted.current = newHighlighted;
+      }
+    } else {
+      if (previousHighlighted.current) {
+        previousHighlighted.current.material.emissive.set(0x000000);
+        previousHighlighted.current.material.emissiveIntensity = 0;
+        previousHighlighted.current = null;
+      }
+    }
+
+    if (previousHighlighted.current) {
+      const intensity = 0.5 + 0.5 * Math.sin(state.clock.getElapsedTime() * 5);
+      previousHighlighted.current.material.emissiveIntensity = intensity;
+    }
   });
 
   return (
     <>
-      <ambientLight intensity={0.5} />
+      <ambientLight intensity={0.8} />
       <pointLight position={[10, 10, 10]} />
       <Plane rotation={[-Math.PI / 2, 0, 0]} args={[100, 100]}>
-        <meshStandardMaterial color='gray' />
+        <meshStandardMaterial color='black' />
       </Plane>
       {modules.map((module, index) => (
         <mesh
@@ -125,13 +152,26 @@ export const SomniaScene = () => {
       ))}
       <PointerLockControls />
       {selectedModule && (
-        <html>
-          <div
-            style={{ position: 'absolute', top: 10, left: 10, background: 'white', padding: 10 }}
-          >
-            {selectedModule.name}
+        <Html>
+          <div className='absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 text-white flex items-center justify-center'>
+            <div className='bg-gray-800 p-6 rounded-lg'>
+              <h1 className='text-2xl'>{selectedModule.name}</h1>
+              <p>{selectedModule.description}</p>
+              <button
+                className='mt-4 bg-blue-500 text-white px-4 py-2 rounded'
+                onClick={() => navigate(`/module/${selectedModule.id}`)}
+              >
+                Go to details
+              </button>
+              <button
+                className='mt-4 ml-2 bg-red-500 text-white px-4 py-2 rounded'
+                onClick={() => setSelectedModule(null)}
+              >
+                Close
+              </button>
+            </div>
           </div>
-        </html>
+        </Html>
       )}
     </>
   );
