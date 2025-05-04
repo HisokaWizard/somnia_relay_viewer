@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { RelayVisualizer } from './components/RelayVisualizer';
 import { EvolutionVisualizer } from './components/EvolutionVisualizer';
+import { SomniaScene } from './SomniaPresentor/SomniaScene';
+import { Canvas } from '@react-three/fiber';
 
 export default function App() {
   const [toggleVisualizer, setToggleVisualizer] = useState(true);
@@ -22,6 +24,11 @@ export default function App() {
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         {toggleVisualizer ? <EvolutionVisualizer /> : null}
         {toggleViewer ? <RelayVisualizer /> : null}
+        <div style={{ width: '100vw', height: '100vh' }}>
+          <Canvas camera={{ position: [0, 2, 5] }}>
+            <SomniaScene />
+          </Canvas>
+        </div>
       </div>
     </div>
   );
