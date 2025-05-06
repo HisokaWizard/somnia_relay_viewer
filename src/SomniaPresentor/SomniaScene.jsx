@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useThree, useFrame, useLoader } from '@react-three/fiber';
-import { PointerLockControls, Plane } from '@react-three/drei';
+import { PointerLockControls, Plane, Html } from '@react-three/drei';
 import { useNavigate } from 'react-router';
 import * as THREE from 'three';
 import { modules, lines } from './modules';
 import { BezierLine } from './BezierLine';
 import { MeshReflectorMaterial } from '@react-three/drei';
-import { Testing3DModel } from './3DModels';
+import { Model3DTemplate } from './3DModels';
 
 const textureURL = `${import.meta.env.BASE_URL}textures/technic.jpg`;
 
@@ -17,8 +17,10 @@ export const SomniaScene = () => {
     left: false,
     right: false,
   });
+  const [hoveredModule, setHoveredModule] = useState(null);
   const moduleMeshes = useRef([]);
   const previousHighlighted = useRef(null);
+  const aimPointRef = useRef();
   const { camera, scene } = useThree();
   const navigate = useNavigate();
   const texture = useLoader(THREE.TextureLoader, textureURL);
@@ -28,7 +30,8 @@ export const SomniaScene = () => {
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
     scene.background = texture;
     scene.environment = texture;
-  }, [scene, texture]);
+    camera.rotation.set(0.2, 0, 0);
+  }, [scene, texture, camera]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -48,9 +51,10 @@ export const SomniaScene = () => {
         case 'Enter':
           const raycaster = new THREE.Raycaster();
           raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
-          const intersects = raycaster.intersectObjects(moduleMeshes.current);
+          const intersects = raycaster.intersectObjects(moduleMeshes.current, true);
           if (intersects.length > 0) {
-            const selectedId = intersects[0].object.userData.id;
+            const hit = intersects[0].object;
+            const selectedId = hit.userData.id ?? hit.parent?.userData.id;
             const module = modules.find((m) => m.id === selectedId);
             if (module) {
               navigate(`/module/${module.id}`);
@@ -94,7 +98,6 @@ export const SomniaScene = () => {
     const speed = 0.1;
     const direction = new THREE.Vector3();
     camera.getWorldDirection(direction);
-    direction.y = 0;
     direction.normalize();
 
     if (keys.forward) {
@@ -114,16 +117,41 @@ export const SomniaScene = () => {
       camera.position.addScaledVector(right, speed);
     }
 
-    const MIN_X = -5;
-    const MAX_X = 5;
-    const MIN_Z = -5;
-    const MAX_Z = 5;
+    const MIN_X = -8;
+    const MAX_X = 8;
+    const MIN_Z = -8;
+    const MAX_Z = 8;
     camera.position.x = Math.max(MIN_X, Math.min(MAX_X, camera.position.x));
     camera.position.z = Math.max(MIN_Z, Math.min(MAX_Z, camera.position.z));
+    camera.position.y = 3;
+
+    const time = state.clock.getElapsedTime();
 
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
-    const intersects = raycaster.intersectObjects(moduleMeshes.current);
+    const intersects = raycaster.intersectObjects(moduleMeshes.current, true);
+
+    if (aimPointRef.current) {
+      let hitPoint = camera.position.clone().addScaledVector(direction, 5);
+      let pulse = 0.3;
+
+      if (intersects.length > 0) {
+        hitPoint = intersects[0].point;
+        hitPoint.y += 0.01;
+        pulse = 0.3 + 0.1 * Math.sin(time * 5);
+
+        const hit = intersects[0].object;
+        const selectedId = hit.userData.id ?? hit.parent?.userData.id;
+        const module = modules.find((m) => m.id === selectedId);
+        setHoveredModule(module || null);
+      } else {
+        setHoveredModule(null);
+      }
+
+      aimPointRef.current.position.copy(hitPoint);
+      aimPointRef.current.scale.set(pulse, pulse, pulse);
+    }
+
     if (intersects.length > 0) {
       const newHighlighted = intersects[0].object;
       if (newHighlighted !== previousHighlighted.current) {
@@ -149,12 +177,44 @@ export const SomniaScene = () => {
     }
   });
 
+  const modulesRender = useMemo(
+    () =>
+      modules.map((module, index) => (
+        <mesh
+          key={module.id}
+          ref={(el) => (moduleMeshes.current[index] = el)}
+          position={[module.position[0], module.position[1], module.position[2]]}
+          userData={{ id: module.id }}
+        >
+          <Model3DTemplate id={module.id} {...module.model} />
+        </mesh>
+      )),
+    [],
+  );
+
+  const logoLines = useMemo(
+    () =>
+      lines.map((line, index) => {
+        return (
+          <BezierLine
+            key={index}
+            start={line.start}
+            end={line.end}
+            color={line.color}
+            width={line.width}
+            curvature={line.curvature}
+          />
+        );
+      }),
+    [],
+  );
+
   return (
     <>
       <ambientLight intensity={1} />
       <pointLight position={[10, 10, 10]} />
 
-      <Plane rotation={[-Math.PI / 2, 0, 0]} args={[100, 100]}>
+      <Plane name='floor' rotation={[-Math.PI / 2, 0, 0]} args={[100, 100]}>
         <MeshReflectorMaterial
           blur={[400, 100]}
           resolution={512}
@@ -167,36 +227,26 @@ export const SomniaScene = () => {
         />
       </Plane>
 
-      {modules.map((module, index) => (
-        <mesh
-          key={module.id}
-          ref={(el) => (moduleMeshes.current[index] = el)}
-          position={[module.position[0], module.position[1], module.position[2]]}
-          userData={{ id: module.id }}
+      <mesh ref={aimPointRef}>
+        <sphereGeometry args={[0.1, 16, 16]} />
+        <meshBasicMaterial color='white' />
+      </mesh>
+
+      {modulesRender}
+      {logoLines}
+
+      {hoveredModule && (
+        <Html
+          position={[
+            hoveredModule.position[0] - 1,
+            hoveredModule.position[1] + 2,
+            hoveredModule.position[2],
+          ]}
         >
-          {module.id === 5 ? (
-            <Testing3DModel />
-          ) : (
-            <>
-              {' '}
-              <boxGeometry args={[1, 1, 1]} />
-              <meshStandardMaterial color={module.color} />
-            </>
-          )}
-        </mesh>
-      ))}
-      {lines.map((line, index) => {
-        return (
-          <BezierLine
-            key={index}
-            start={line.start}
-            end={line.end}
-            color={line.color}
-            width={line.width}
-            curvature={line.curvature}
-          />
-        );
-      })}
+          <h3 style={{ color: 'white' }}>{hoveredModule.description}</h3>
+        </Html>
+      )}
+
       <PointerLockControls />
     </>
   );
