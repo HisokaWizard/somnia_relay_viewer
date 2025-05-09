@@ -1,10 +1,10 @@
 export const modules = [
   {
-    id: 1,
+    id: 'multistream',
     name: 'Consensus Mechanism',
     position: [-3.3, 3.8, 0],
     color: 'blue',
-    description: 'Demonstaration of Multistream consensus.',
+    description: 'Demonstaration of Multistream consensus',
     modelName: 'MultistreamPipe.glb',
     model: {
       name: 'MultistreamPipe.glb',
@@ -17,11 +17,11 @@ export const modules = [
     },
   },
   {
-    id: 2,
+    id: 'icedb',
     name: 'Database (IceDB)',
     position: [1, 6.5, 0],
     color: 'red',
-    description: 'Visualisation of IceDB speed.',
+    description: 'Visualisation of IceDB speed',
     model: {
       name: 'IceDB.glb',
       rotate: {
@@ -33,11 +33,11 @@ export const modules = [
     },
   },
   {
-    id: 3,
+    id: 'evm_optimisation',
     name: 'EVM Optimization',
     position: [-1, 1, 0],
     color: 'yellow',
-    description: 'Optimization EVM-bitecode.',
+    description: 'Optimization EVM-bitecode',
     model: {
       name: 'EvmOptimisation.glb',
       rotate: {
@@ -49,11 +49,11 @@ export const modules = [
     },
   },
   {
-    id: 4,
+    id: 'partners',
     name: 'Ecosystem Partners',
     position: [3.2, 3.7, 0],
     color: 'green',
-    description: 'Somnia partners.',
+    description: 'Somnia ecosystem partners',
     model: {
       name: 'Partnerships.glb',
       rotate: {
@@ -65,7 +65,7 @@ export const modules = [
     },
   },
   {
-    id: 5,
+    id: 'transactions',
     name: 'Transaction Visualization',
     position: [0, 3.4, 0],
     color: 'purple',

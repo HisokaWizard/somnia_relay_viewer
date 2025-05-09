@@ -8,7 +8,6 @@ import { lines } from '@/shared/lines';
 import { BezierLine } from '@/features/BezierLine';
 import { MeshReflectorMaterial } from '@react-three/drei';
 import { Model3DTemplate } from '@/features/3DModels';
-import axios from 'axios';
 
 const textureURL = `${import.meta.env.BASE_URL}textures/technic.jpg`;
 
@@ -26,16 +25,6 @@ export const SomniaScene = () => {
   const { camera, scene } = useThree();
   const navigate = useNavigate();
   const texture = useLoader(THREE.TextureLoader, textureURL);
-
-  useEffect(() => {
-    const runQueries = async () => {
-      const url = `https://somnia-poc.w3us.site/api/v2/blocks/65665958/transactions`;
-      const result = await axios.get(url);
-      console.log(result);
-    };
-
-    runQueries();
-  }, []);
 
   useEffect(() => {
     texture.mapping = THREE.EquirectangularReflectionMapping;
