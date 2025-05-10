@@ -17,7 +17,7 @@ export const AppRouter = () => {
             </div>
           }
         />
-        <Route path='/module/:id' element={<ModuleDetails />} />
+        <Route path='/:id' element={<ModuleDetails />} />
       </Routes>
     </BrowserRouter>
   );

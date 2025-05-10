@@ -58,7 +58,7 @@ export const SomniaScene = () => {
             const selectedId = hit.userData.id ?? hit.parent?.userData.id;
             const module = modules.find((m) => m.id === selectedId);
             if (module) {
-              navigate(`/module/${module.id}`);
+              navigate(`/${module.id}`);
             }
           }
           break;

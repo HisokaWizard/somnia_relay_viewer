@@ -4,10 +4,10 @@ import { RealtimeTransactions } from '@/widgets/RealtimeTransactions';
 import { Canvas } from '@react-three/fiber';
 
 const moduleRouterMap = {
-  multistream: <div>Here will be multistream</div>,
-  icedb: <div>Here will be ice db</div>,
-  evm_optimisation: <div>Here will be evm optimisation</div>,
-  partners: <div>Here will be partners</div>,
+  multistream: () => <div>Here will be multistream</div>,
+  icedb: () => <div>Here will be ice db</div>,
+  evm_optimisation: () => <div>Here will be evm optimisation</div>,
+  partners: () => <div>Here will be partners</div>,
   transactions: RealtimeTransactions,
 };
 
@@ -29,6 +29,8 @@ const commonStyles = {
 };
 
 const sceneStyles = {
+  position: 'absolute',
+  top: '70px',
   width: '100%',
   height: '100%',
 };
