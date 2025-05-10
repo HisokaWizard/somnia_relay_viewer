@@ -12,7 +12,7 @@ export const transactionModules = [
     color: 0x00ff00,
   },
   {
-    id: 'AISocial',
+    id: 'AI/Social',
     name: 'AI/Social',
     position: [-1.5, 0, 2.598],
     color: 0xff00ff,
