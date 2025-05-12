@@ -10,7 +10,7 @@ export const TransactionModule = ({ position, color, name }) => {
       <meshStandardMaterial color={color} />
 
       <Html position={[0, 1, 0]}>
-        <h3 style={{ color: 'whitesmoke' }}>{name}</h3>
+        <h3 style={{ color: 'black' }}>{name}</h3>
       </Html>
     </mesh>
   );

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 const protocolMap = {
   gaming: ['0x4697Fd9Ca2DdaFcd3034219d850bc02Ec82E5448'],
@@ -79,8 +79,37 @@ const defaultStructuredTransactions = {
   'Other': 0,
 };
 
+// /stats/charts/transactions - get amount of daily transactions by the last month
+
 export const useRealtimeTransactions = () => {
   const [transactions, setTransactions] = useState(defaultStructuredTransactions);
+  const [stats, setStats] = useState();
+  const [statsTransactions, setStatsTransactions] = useState();
+
+  useEffect(() => {
+    const runQueries = async () => {
+      try {
+        const statsUrl = 'https://somnia-poc.w3us.site/api/v2/stats';
+        const statsTransactionsUrl =
+          'https://somnia-poc.w3us.site/api/v2/stats/charts/transactions';
+
+        const statsResponse = await axios.get(statsUrl);
+        const statsTransactionsResponse = await axios.get(statsTransactionsUrl);
+
+        setStats(statsResponse.data);
+        setStatsTransactions(statsTransactionsResponse.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    runQueries();
+    const interval = setInterval(runQueries, 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
 
   useEffect(() => {
     const runQueries = async () => {
@@ -146,5 +175,12 @@ export const useRealtimeTransactions = () => {
     };
   }, []);
 
-  return transactions;
+  return useMemo(
+    () => ({
+      transactions,
+      stats,
+      statsTransactions,
+    }),
+    [transactions, stats, statsTransactions],
+  );
 };
