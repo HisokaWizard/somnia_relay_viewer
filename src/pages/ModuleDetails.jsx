@@ -28,12 +28,12 @@ const commonStyles = {
   zIndex: 1,
 };
 
-const sceneStyles = {
+const sceneStyles = () => ({
   position: 'absolute',
   top: '70px',
   width: '100%',
-  height: '100%',
-};
+  height: `${window.document.body.clientHeight - 140}px`,
+});
 
 const headerStyles = {
   ...commonStyles,
@@ -65,9 +65,9 @@ export const ModuleDetails = () => {
         <h1>{module.name}</h1>
         <p style={{ marginRight: '20px' }}>{module.description}</p>
       </div>
-      <div style={sceneStyles}>
+      <div style={sceneStyles()}>
         {module.id === 'transactions' ? (
-          <Canvas camera={{ position: [0, 2, 5], fov: 50 }}>
+          <Canvas camera={{ position: [0, 4, 8], fov: 50 }}>
             <Component />
           </Canvas>
         ) : (

@@ -15,14 +15,14 @@ import { transactionModules } from '@/shared/transactionModules';
  * - speed: speed factor (default 1)
  * - size: radius of spheres (default 0.05)
  */
-export function TransactionParticles({ transactions, speed = 1, size = 0.05, spacing = 20 }) {
+export function TransactionParticles({ transactions, speed = 1, size = 0.05, spacing = 10 }) {
   const meshRef = useRef();
   const particles = useRef([]);
 
   useEffect(() => {
     const list = [];
     Object.entries(transactions).forEach(([module, count]) => {
-      const startPos = transactionModules.find((it) => it.id === module).position || [0, 0, 0];
+      const startPos = transactionModules.find((it) => it.id === module)?.position || [0, 0, 0];
       const startVec = new THREE.Vector3(...startPos);
       for (let i = 0; i < count; i++) {
         list.push({ module, startVec, t: -(i / count) * spacing });
