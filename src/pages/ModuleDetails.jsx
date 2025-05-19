@@ -1,10 +1,17 @@
+import React, { useRef, useEffect, useState } from 'react';
 import { modules } from '@/shared/generalModules';
 import { useParams } from 'react-router';
 import { RealtimeTransactions } from '@/widgets/RealtimeTransactions';
+import { MultistreamConsensusScene } from '@/widgets/MultistreamConsensus';
 import { Canvas } from '@react-three/fiber';
+import { ankrSomniaUrl } from '@/shared/apis';
+import axios from 'axios';
+import Web3 from 'web3';
+
+const web3 = new Web3(new Web3.providers.HttpProvider(ankrSomniaUrl));
 
 const moduleRouterMap = {
-  multistream: () => <div>Here will be multistream</div>,
+  multistream: MultistreamConsensusScene,
   icedb: () => <div>Here will be ice db</div>,
   evm_optimisation: () => <div>Here will be evm optimisation</div>,
   partners: () => <div>Here will be partners</div>,
@@ -55,9 +62,67 @@ const footerStyles = {
 };
 
 export const ModuleDetails = () => {
+  const [totalBlocks, setTotalBlocks] = useState(0);
   const { id } = useParams();
   const module = modules.find((m) => m.id === id);
   const Component = moduleRouterMap[module.id];
+  const blockNumberRef = useRef(0);
+  const statsRef = useRef({
+    totalTransactions: 0,
+    todayTransactions: 0,
+  });
+
+  useEffect(() => {
+    if (module.id !== 'transactions') return;
+
+    const runQuery = async () => {
+      try {
+        const lastBlock = await web3.eth.getBlockNumber();
+        blockNumberRef.current = Number(lastBlock);
+        const stats = await axios.get('https://somnia-poc.w3us.site/api/v2/stats');
+        statsRef.current = {
+          totalTransactions: Number(stats?.data?.total_transactions ?? 0),
+          todayTransactions: Number(stats?.data?.transactions_today ?? 0),
+        };
+      } catch (error) {
+        console.error(error);
+        if (error.response.status === '404') {
+          delta += 10000;
+        }
+      }
+    };
+
+    let delta = 100;
+    const poolingQuery = async () => {
+      try {
+        blockNumberRef.current += 10;
+        const txhsUrl = `https://somnia-poc.w3us.site/api/v2/blocks/${blockNumberRef.current}/transactions`;
+        const transactions = await axios.get(txhsUrl);
+        statsRef.current = {
+          totalTransactions:
+            statsRef.current.totalTransactions + (transactions.data?.items?.length ?? 0),
+          todayTransactions:
+            statsRef.current.todayTransactions + (transactions.data?.items?.length ?? 0),
+        };
+        setTotalBlocks(blockNumberRef.current);
+      } catch (error) {
+        console.error(error);
+        if (error.response.status === 404) {
+          blockNumberRef.current -= delta;
+          delta += 1000;
+          console.log('Delta module: ', delta);
+        }
+      }
+    };
+
+    const interval = setInterval(poolingQuery, 1000);
+
+    runQuery();
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
 
   return (
     <div style={generalContainerStyles}>
@@ -67,9 +132,18 @@ export const ModuleDetails = () => {
       </div>
       <div style={sceneStyles()}>
         {module.id === 'transactions' ? (
-          <Canvas camera={{ position: [0, 4, 8], fov: 50 }}>
-            <Component />
-          </Canvas>
+          <>
+            <div
+              style={{ zIndex: 1, position: 'absolute', top: '20px', left: '20px', color: 'green' }}
+            >
+              <h3>Today Blocks: {totalBlocks}</h3>
+              <h3>Today Transactions: {statsRef.current.todayTransactions}</h3>
+              <h3>Total Transactions: {statsRef.current.totalTransactions}</h3>
+            </div>
+            <Canvas camera={{ position: [0, 4, 8], fov: 50 }}>
+              <Component />
+            </Canvas>
+          </>
         ) : (
           <Component />
         )}

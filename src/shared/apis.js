@@ -1,12 +1,13 @@
 import axios from 'axios';
 
+export const ankrSomniaUrl = `https://rpc.ankr.com/somnia_testnet/${
+  import.meta.env.VITE_ANKR_API_KEY
+}`;
+
 const ETH_INFURA_URL = 'https://mainnet.infura.io/v3';
 const url = `${ETH_INFURA_URL}/${import.meta.env.VITE_INFURA_API_KEY}`;
 
 const somniaGeneral = 'https://somnia-poc.w3us.site/api/v2';
-const somniaAnkrRpc = `https://rpc.ankr.com/somnia_shannon_testnet/${
-  import.meta.env.VITE_ANKR_API_KEY
-}`;
 
 export const getBlockDataByNumber = async (blockNumber) => {
   try {

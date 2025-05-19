@@ -1,10 +1,9 @@
 import axios from 'axios';
 import { useEffect, useMemo, useState } from 'react';
 import Web3 from 'web3';
+import { ankrSomniaUrl } from '@/shared/apis';
 
-const url =
-  'https://rpc.ankr.com/somnia_testnet/ae5406ab97c1d4756b5541f55e3ff7a4e57ce76e408817152b81d454d6b07860';
-const web3 = new Web3(new Web3.providers.HttpProvider(url));
+const web3 = new Web3(new Web3.providers.HttpProvider(ankrSomniaUrl));
 
 const classifyTransaction = (tx) => {
   // Infrastructure
@@ -97,6 +96,7 @@ export const useRealtimeTransactions = () => {
   const [transactions, setTransactions] = useState(defaultStructuredTransactions);
 
   useEffect(() => {
+    let delta = 100;
     const runQueries = async () => {
       try {
         const lastBlock = await web3.eth.getBlockNumber();
@@ -112,7 +112,7 @@ export const useRealtimeTransactions = () => {
 
         const transactionsByBlockList = [];
         for (let i = 0; i < 30; i++) {
-          transactionsByBlockList.push(transactionByBlockNumberUrl(lastBlockNumber - 50 - i));
+          transactionsByBlockList.push(transactionByBlockNumberUrl(lastBlockNumber - delta - i));
         }
 
         const promises = [];
@@ -120,10 +120,11 @@ export const useRealtimeTransactions = () => {
           promises.push(axios.get(url));
         });
 
-        const responseList = await Promise.all(promises);
+        const responseList = await Promise.allSettled(promises);
         let transactions = [];
         responseList.forEach((response) => {
-          transactions = [...transactions, ...response.data.items];
+          if (response.status === 'fulfilled')
+            transactions = [...transactions, ...response.value.data.items];
         });
 
         if (!transactions || !Array.isArray(transactions) || transactions.length === 0) {
@@ -141,10 +142,21 @@ export const useRealtimeTransactions = () => {
         setTransactions(structuredTransactions);
       } catch (error) {
         console.error(error);
+        if (error.response.status === 404) {
+          delta += 100000;
+          console.log('Delta:', delta);
+        }
       }
     };
 
     runQueries();
+    setTransactions({
+      ...defaultStructuredTransactions,
+      'Infrastructure': 50,
+      'DeFi': 30,
+      'Gaming': 15,
+      'Metaverse/NFT': 15,
+    });
 
     const interval = setInterval(runQueries, 10000);
 
