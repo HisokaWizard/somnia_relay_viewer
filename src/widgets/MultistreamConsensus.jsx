@@ -2,6 +2,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { DescriptionContainer } from '@/entities/DescriptionContainer';
 
 const validatorsAmount = 16;
 const blocksAmount = 20;
@@ -96,27 +97,15 @@ export const MultistreamConsensusScene = () => {
 
   const description = useMemo(
     () => (
-      <div
-        style={{
-          position: 'absolute',
-          top: '10px',
-          left: '10px',
-          maxWidth: '300px',
-          backgroundColor: 'rgba(0, 0, 0, 0.7)',
-          color: 'white',
-          padding: '8px',
-          borderRadius: '4px',
-          fontSize: '14px',
-          zIndex: 10,
-          pointerEvents: 'none',
-        }}
-      >
-        <strong>Animation:</strong> Blocks appear gradually every 2 seconds, reflecting the addition
-        of new blocks to the data chain.
-        <br />
-        <strong>Interactive:</strong> Rotate the scene with your mouse (OrbitControls). Hover over
-        consensus blocks or planes to see information.
-      </div>
+      <DescriptionContainer>
+        <>
+          <strong>Animation:</strong> Blocks appear gradually every 2 seconds, reflecting the
+          addition of new blocks to the data chain.
+          <br />
+          <strong>Interactive:</strong> Rotate the scene with your mouse (OrbitControls). Hover over
+          consensus blocks or planes to see information.
+        </>
+      </DescriptionContainer>
     ),
     [],
   );

@@ -96,7 +96,7 @@ export const useRealtimeTransactions = () => {
   const [transactions, setTransactions] = useState(defaultStructuredTransactions);
 
   useEffect(() => {
-    let delta = 100;
+    let breakIntervalCounter = 0;
     const runQueries = async () => {
       try {
         const lastBlock = await web3.eth.getBlockNumber();
@@ -111,8 +111,8 @@ export const useRealtimeTransactions = () => {
           `https://somnia-poc.w3us.site/api/v2/blocks/${blockNumber}/transactions`;
 
         const transactionsByBlockList = [];
-        for (let i = 0; i < 30; i++) {
-          transactionsByBlockList.push(transactionByBlockNumberUrl(lastBlockNumber - delta - i));
+        for (let i = 0; i < 10; i++) {
+          transactionsByBlockList.push(transactionByBlockNumberUrl(lastBlockNumber - 1000 - i));
         }
 
         const promises = [];
@@ -122,9 +122,19 @@ export const useRealtimeTransactions = () => {
 
         const responseList = await Promise.allSettled(promises);
         let transactions = [];
+
         responseList.forEach((response) => {
-          if (response.status === 'fulfilled')
+          if (response.status === 'fulfilled') {
             transactions = [...transactions, ...response.value.data.items];
+          } else if (response.status === 'rejected') {
+            breakIntervalCounter++;
+            if (breakIntervalCounter >= 100) {
+              clearInterval(interval);
+              console.info(
+                'Stop polling because of data source can not answer with valid response!',
+              );
+            }
+          }
         });
 
         if (!transactions || !Array.isArray(transactions) || transactions.length === 0) {
@@ -142,10 +152,6 @@ export const useRealtimeTransactions = () => {
         setTransactions(structuredTransactions);
       } catch (error) {
         console.error(error);
-        if (error.response.status === 404) {
-          delta += 100000;
-          console.log('Delta:', delta);
-        }
       }
     };
 

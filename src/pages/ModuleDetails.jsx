@@ -74,6 +74,7 @@ export const ModuleDetails = () => {
 
   useEffect(() => {
     if (module.id !== 'transactions') return;
+    let breakIntervalCounter = 0;
 
     const runQuery = async () => {
       try {
@@ -86,36 +87,34 @@ export const ModuleDetails = () => {
         };
       } catch (error) {
         console.error(error);
-        if (error.response.status === '404') {
-          delta += 10000;
-        }
       }
     };
 
-    let delta = 100;
     const poolingQuery = async () => {
       try {
-        blockNumberRef.current += 10;
-        const txhsUrl = `https://somnia-poc.w3us.site/api/v2/blocks/${blockNumberRef.current}/transactions`;
+        blockNumberRef.current += 50;
+        const txhsUrl = `https://somnia-poc.w3us.site/api/v2/blocks/${
+          blockNumberRef.current - 1000
+        }/transactions`;
         const transactions = await axios.get(txhsUrl);
         statsRef.current = {
           totalTransactions:
-            statsRef.current.totalTransactions + (transactions.data?.items?.length ?? 0),
+            statsRef.current.totalTransactions + (transactions.data?.items?.length * 5 ?? 0),
           todayTransactions:
-            statsRef.current.todayTransactions + (transactions.data?.items?.length ?? 0),
+            statsRef.current.todayTransactions + (transactions.data?.items?.length * 5 ?? 0),
         };
         setTotalBlocks(blockNumberRef.current);
       } catch (error) {
         console.error(error);
-        if (error.response.status === 404) {
-          blockNumberRef.current -= delta;
-          delta += 1000;
-          console.log('Delta module: ', delta);
+        breakIntervalCounter++;
+        if (breakIntervalCounter >= 20) {
+          clearInterval(interval);
+          console.info('Stop polling because of data source can not answer with valid response!');
         }
       }
     };
 
-    const interval = setInterval(poolingQuery, 1000);
+    const interval = setInterval(poolingQuery, 5000);
 
     runQuery();
 
