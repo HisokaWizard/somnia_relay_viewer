@@ -3,6 +3,7 @@ import { modules } from '@/shared/generalModules';
 import { useParams } from 'react-router';
 import { RealtimeTransactions } from '@/widgets/RealtimeTransactions';
 import { MultistreamConsensusScene } from '@/widgets/MultistreamConsensus';
+import { IceDB } from '@/widgets/IceDB';
 import { Canvas } from '@react-three/fiber';
 import { ankrSomniaUrl } from '@/shared/apis';
 import axios from 'axios';
@@ -12,7 +13,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider(ankrSomniaUrl));
 
 const moduleRouterMap = {
   multistream: MultistreamConsensusScene,
-  icedb: () => <div>Here will be ice db</div>,
+  icedb: IceDB,
   evm_optimisation: () => <div>Here will be evm optimisation</div>,
   partners: () => <div>Here will be partners</div>,
   transactions: RealtimeTransactions,
