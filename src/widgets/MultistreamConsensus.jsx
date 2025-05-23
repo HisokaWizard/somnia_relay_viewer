@@ -111,38 +111,45 @@ export const MultistreamConsensusScene = () => {
   );
 
   const descriptionBlocks = useMemo(() => {
-    return hoveredBlock ? (
+    return hoveredBlock !== null && hoveredBlock !== undefined ? (
       <Html
         position={[
           hoveredBlock.j * blockSpacing,
           Math.floor(hoveredBlock.i / matrixCol) * rowSpacing + 0.7,
           (hoveredBlock.i % matrixCol) * colSpacing,
         ]}
-        transform
         style={{ pointerEvents: 'none' }}
       >
-        <div style={{ backgroundColor: 'white', padding: '4px', borderRadius: '4px' }}>
+        <h6
+          style={{
+            color: 'white',
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            padding: '4px',
+            borderRadius: '4px',
+            width: 'fit-content',
+          }}
+        >
           Validator {hoveredBlock.i}, Block {hoveredBlock.j}
-        </div>
+        </h6>
       </Html>
     ) : null;
   }, [hoveredBlock]);
 
   const descriptionPlanes = useMemo(() => {
-    return hoveredPlane ? (
+    return hoveredBlock !== null && hoveredBlock !== undefined ? (
       <Html
         position={[
           consensusOffset + hoveredPlane * consensusInterval * blockSpacing,
           totalY / 2 + totalY / 2 + 0.5,
           totalZ / 2,
         ]}
-        transform={false}
         sprite
         style={{ pointerEvents: 'none' }}
       >
-        <div
+        <h6
           style={{
-            backgroundColor: 'white',
+            color: 'white',
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
             padding: '4px',
             borderRadius: '4px',
             fontSize: '12px',
@@ -150,7 +157,7 @@ export const MultistreamConsensusScene = () => {
         >
           Consensus Plane {hoveredPlane}: Synchronizes all data chains at block{' '}
           {consensusOffset + hoveredPlane * consensusInterval}
-        </div>
+        </h6>
       </Html>
     ) : null;
   }, [hoveredPlane]);

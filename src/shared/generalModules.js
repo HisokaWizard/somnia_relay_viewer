@@ -5,9 +5,8 @@ export const modules = [
     position: [-3.3, 3.8, 0],
     color: 'blue',
     description: 'Demonstaration of Multistream consensus',
-    modelName: 'MultistreamPipe.glb',
     model: {
-      name: 'MultistreamPipe.glb',
+      name: 'multistream_pipe.glb',
       rotate: {
         rotateSpeed: [0, 0, 0.01],
         rotateO: [false, false, true],
@@ -23,7 +22,7 @@ export const modules = [
     color: 'red',
     description: 'Visualisation of IceDB speed',
     model: {
-      name: 'IceDB.glb',
+      name: 'ice_db.glb',
       rotate: {
         rotateSpeed: [0, 0.01, 0],
         rotateO: [false, true, false],
@@ -39,7 +38,7 @@ export const modules = [
     color: 'yellow',
     description: 'Optimization EVM-bitecode',
     model: {
-      name: 'EvmOptimisation.glb',
+      name: 'evm_optimisation.glb',
       rotate: {
         rotateSpeed: [0, 0.01, 0],
         rotateO: [false, true, false],
@@ -55,7 +54,7 @@ export const modules = [
     color: 'green',
     description: 'Somnia ecosystem partners',
     model: {
-      name: 'Partnerships.glb',
+      name: 'partnerships_bros.glb',
       rotate: {
         rotateSpeed: [0, 0, 0.01],
         rotateO: [false, false, true],
@@ -71,7 +70,7 @@ export const modules = [
     color: 'purple',
     description: 'Transactions in real time',
     model: {
-      name: 'SomniaLogo.glb',
+      name: 'somnia_logo.glb',
       rotate: {
         rotateSpeed: [0, -0.005, 0],
         rotateO: [false, true, false],

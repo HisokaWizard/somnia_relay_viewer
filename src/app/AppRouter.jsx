@@ -21,8 +21,9 @@ export const AppRouter = () => {
             <strong>Esc</strong> - to back from 3D Scene
           </div>
           <br />
-          <strong>Interactive:</strong> You can moving in the 3D space and hovered modules. If you
-          want to research module, you can focus on it and redirect to module page
+          <strong>Interactive:</strong> You can move inside the 3d space and around hovering
+          objects. If you want to get more details about one of the objects, you can focus on it
+          with your mouse and press Enter
         </>
       </DescriptionContainer>
     ),

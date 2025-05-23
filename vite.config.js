@@ -12,6 +12,14 @@ export default defineConfig({
       input: {
         main: path.resolve(__dirname, 'index.html'),
       },
+      output: {
+        manualChunks: {
+          vendor_three: ['three'],
+          vendor_react: ['react', 'react-dom', 'react-router', 'react-router-dom'],
+          venodr_3d: ['@react-three/fiber', '@react-three/drei'],
+          vendor_web3: ['axios', 'web3'],
+        },
+      },
     },
   },
   assetsInclude: ['**/*.jpg', '**/*.png', '**/*.glb'],
@@ -21,16 +29,6 @@ export default defineConfig({
     host: true,
     strictPort: true,
     historyApiFallback: true,
-    setupMiddlewares: (middlewares, { app }) => {
-      app.use((req, res, next) => {
-        if (req.url !== '/' && !req.url.includes('.')) {
-          res.sendFile(path.resolve(__dirname, 'index.html'));
-        } else {
-          next();
-        }
-      });
-      return middlewares;
-    },
   },
   resolve: {
     alias: {

@@ -238,9 +238,10 @@ export const SomniaScene = () => {
 
       {hoveredModule && (
         <Html
+          style={{ padding: '10px', backgroundColor: 'rgba(0,0,0,0.8)', borderRadius: '8px' }}
           position={[
-            hoveredModule.position[0] - 1,
-            hoveredModule.position[1] + 2,
+            hoveredModule.position[0],
+            hoveredModule.position[1],
             hoveredModule.position[2],
           ]}
         >

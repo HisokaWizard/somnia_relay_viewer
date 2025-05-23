@@ -64,6 +64,8 @@ const ParticleStream = ({ startPos, endPos, material }) => {
   return <points ref={ref} geometry={geometry} material={material} />;
 };
 
+const cubePosition = new THREE.Vector3(0, 0.5, 0);
+
 export const IceDB = () => {
   // Состояние для метрик и визуальных эффектов
   const [metrics, setMetrics] = useState({});
@@ -91,7 +93,7 @@ export const IceDB = () => {
         map: particleTexture,
         size: 0.2,
         transparent: true,
-        color: 'red',
+        color: 'coral',
       }),
     [particleTexture],
   );
@@ -100,40 +102,60 @@ export const IceDB = () => {
     () =>
       new THREE.PointsMaterial({
         map: particleTexture,
-        size: 0.1,
+        size: 0.2,
         transparent: true,
-        color: 'blue',
+        color: 'lightblue',
       }),
     [particleTexture],
   );
 
-  const cubePosition = new THREE.Vector3(0, 0.5, 0);
   const distance = 5;
 
   const directions = [
     new THREE.Vector3(0, 1, 0),
-    new THREE.Vector3(1, 1, 0),
-    new THREE.Vector3(1, 1, 1),
-    new THREE.Vector3(0, 1, 1),
-    new THREE.Vector3(0, 0, 1),
-    new THREE.Vector3(1, 0, 1),
+    new THREE.Vector3(0, 1, 0),
+    new THREE.Vector3(0, 1, 0),
+    new THREE.Vector3(0, 1, 0),
+    new THREE.Vector3(0, 1, 0),
   ];
 
   const incomingStreams = useMemo(() => {
-    return directions.map((dir) => {
+    return directions.map((dir, index) => {
       const start = cubePosition.clone().add(dir.clone().multiplyScalar(distance));
       const end = cubePosition.clone();
-      return { start, end };
+      return {
+        start: new THREE.Vector3(
+          index % 2 !== 0 ? start.x - 0.1 * index : start.x + 0.1 * index,
+          start.y,
+          start.z,
+        ),
+        end: new THREE.Vector3(
+          index % 2 !== 0 ? end.x - 0.1 * index : end.x + 0.1 * index,
+          end.y,
+          end.z,
+        ),
+      };
     });
-  }, [cubePosition, distance]);
+  }, [distance]);
 
   const outgoingStreams = useMemo(() => {
-    return directions.map((dir) => {
+    return directions.map((dir, index) => {
       const start = cubePosition.clone();
       const end = cubePosition.clone().add(dir.clone().multiplyScalar(distance));
-      return { start, end };
+      return {
+        start: new THREE.Vector3(
+          index % 2 !== 0 ? start.x - 0.1 * index : start.x + 0.1 * index,
+          start.y,
+          start.z,
+        ),
+        end: new THREE.Vector3(
+          index % 2 !== 0 ? end.x - 0.1 * index : end.x + 0.1 * index,
+          end.y,
+          end.z,
+        ),
+      };
     });
-  }, [cubePosition, distance]);
+  }, [distance]);
 
   const performRead = () => {
     const ramAccess = Math.random() < 0.8;
@@ -209,7 +231,7 @@ export const IceDB = () => {
         {showSnapshot && (
           <mesh position={cubePosition}>
             <boxGeometry args={[1, 1, 1]} />
-            <meshBasicMaterial color='blue' transparent opacity={0.5} />
+            <meshBasicMaterial color='yellow' transparent opacity={0.5} />
           </mesh>
         )}
 
