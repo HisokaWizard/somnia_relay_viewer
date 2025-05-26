@@ -4,6 +4,7 @@ import { useParams } from 'react-router';
 import { RealtimeTransactions } from '@/widgets/RealtimeTransactions';
 import { MultistreamConsensusScene } from '@/widgets/MultistreamConsensus';
 import { OptimisationVisualizer } from '@/widgets/OptimisationVisualizer';
+import { SomniaPartners } from '@/widgets/SomniaPartners';
 import { IceDB } from '@/widgets/IceDB';
 import { Canvas } from '@react-three/fiber';
 import { ankrSomniaUrl } from '@/shared/apis';
@@ -20,7 +21,7 @@ const moduleRouterMap = {
       <OptimisationVisualizer />
     </Canvas>
   ),
-  partners: () => <div>Here will be partners</div>,
+  partners: SomniaPartners,
   transactions: RealtimeTransactions,
 };
 
