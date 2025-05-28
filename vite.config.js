@@ -22,7 +22,15 @@ export default defineConfig({
       },
     },
   },
-  assetsInclude: ['**/*.jpg', '**/*.png', '**/*.glb'],
+  assetsInclude: [
+    '**/*.jpg',
+    '**/*.png',
+    '**/*.glb',
+    '**/*.jpeg',
+    '**/*.webp',
+    '**/*.svg',
+    '**/*.gif',
+  ],
   server: {
     port: 12021,
     open: true,

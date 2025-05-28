@@ -1,37 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ForceGraph3D from 'react-force-graph-3d';
 import * as THREE from 'three';
-
-// Данные графа (пример, замените на реальные данные партнеров Somnia)
-const initialGraphData = {
-  nodes: [
-    {
-      id: 'Somnia',
-      name: 'Somnia',
-      description:
-        'Somnia is the fastest EVM-compatible layer one blockchain for a fully onchain world',
-      logo: `${import.meta.env.BASE_URL}textures/somnia_logo.png`,
-    },
-    {
-      id: 'Ankr RPC',
-      name: 'Ankr RPC',
-      description:
-        'A provider of RPC nodes and subgraphs for blockchains. Supplies infrastructure for developers within the Somnia ecosystem.',
-      logo: `${import.meta.env.BASE_URL}textures/ankr_logo.png`,
-    },
-    {
-      id: 'Privy.io',
-      name: 'Privy.io',
-      description:
-        'A platform enabling seamless wallet integration into Web3 applications, offering smooth onboarding and wallet management.',
-      logo: `${import.meta.env.BASE_URL}textures/privy_logo.gif`,
-    },
-  ],
-  links: [
-    { source: 'Somnia', target: 'Ankr RPC', color: 'blue' },
-    { source: 'Somnia', target: 'Privy.io', color: 'violet' },
-  ],
-};
+import { somniaPartners } from '@/shared/somniaPartners';
 
 export const SomniaPartners = () => {
   const [hoveredNode, setHoveredNode] = useState(null);
@@ -41,7 +11,7 @@ export const SomniaPartners = () => {
   useEffect(() => {
     const loadTextures = async () => {
       const textureMap = {};
-      for (const node of initialGraphData.nodes) {
+      for (const node of somniaPartners.nodes) {
         try {
           const texture = await new Promise((resolve, reject) => {
             new THREE.TextureLoader().load(node.logo, resolve, undefined, reject);
@@ -135,7 +105,7 @@ export const SomniaPartners = () => {
     <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
       {/* 3D Граф */}
       <ForceGraph3D
-        graphData={initialGraphData}
+        graphData={somniaPartners}
         onNodeHover={handleNodeHover}
         nodeThreeObject={nodeThreeObject}
         linkThreeObject={linkThreeObject}
