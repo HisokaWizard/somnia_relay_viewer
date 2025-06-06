@@ -1,6 +1,12 @@
 import React from 'react';
 
-export const DescriptionContainer = ({ children }) => {
+interface DescriptionContainerProps {
+  children: React.ReactNode;
+}
+
+export const DescriptionContainer = ({
+  children,
+}: DescriptionContainerProps) => {
   return (
     <div
       style={{

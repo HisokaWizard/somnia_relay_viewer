@@ -1,4 +1,34 @@
-export const modules = [
+import { BooleanVector3, NumberVector3 } from './types';
+
+export type ModuleRouteId =
+  | 'multistream'
+  | 'icedb'
+  | 'evm_optimisation'
+  | 'partners'
+  | 'transactions';
+
+export interface ModelRotate {
+  rotateSpeed: NumberVector3;
+  rotateO: BooleanVector3;
+}
+
+export interface Model3D {
+  name: string;
+  rotate: ModelRotate;
+  scale: number;
+  initialRotation: NumberVector3;
+}
+
+export interface MainSceneModule {
+  id: ModuleRouteId;
+  name: string;
+  position: NumberVector3;
+  color: string;
+  description: string;
+  model: Model3D;
+}
+
+export const modules: MainSceneModule[] = [
   {
     id: 'multistream',
     name: 'Consensus Mechanism',

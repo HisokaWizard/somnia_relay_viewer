@@ -1,8 +1,19 @@
 import React, { useRef } from 'react';
 import { Html } from '@react-three/drei';
+import { MeshWrapper, NumberVector3 } from '@/shared';
 
-export const TransactionModule = ({ position, color, name }) => {
-  const meshRef = useRef();
+interface TransactionModuleProps {
+  position: NumberVector3;
+  color: string;
+  name: string;
+}
+
+export const TransactionModule = ({
+  position,
+  color,
+  name,
+}: TransactionModuleProps) => {
+  const meshRef = useRef<MeshWrapper | null>(null);
 
   return (
     <mesh ref={meshRef} position={position}>

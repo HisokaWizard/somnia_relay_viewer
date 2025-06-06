@@ -1,18 +1,34 @@
+import { ModelRotate, NumberVector3 } from '@/shared';
 import { useGLTF } from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
+import { PrimitiveProps, useFrame } from '@react-three/fiber';
 import { useRef, useEffect } from 'react';
+import * as THREE from 'three';
 
-export const Model3DTemplate = ({ id, name, scale = 1, initialRotation = [0, 0, 0], rotate }) => {
-  const { scene } = useGLTF(`${import.meta.env.BASE_URL}models/${name}`);
-  const modelRef = useRef();
+interface Model3DTemplateProps {
+  id: string;
+  name: string;
+  scale: number;
+  initialRotation: NumberVector3;
+  rotate: ModelRotate;
+}
+
+export const Model3DTemplate = ({
+  id,
+  name,
+  scale = 1,
+  initialRotation = [0, 0, 0],
+  rotate,
+}: Model3DTemplateProps) => {
+  const { scene } = useGLTF(`${process.env.BASE_URL}models/${name}`);
+  const modelRef = useRef<PrimitiveProps | null>(null);
 
   const finalScale = Array.isArray(scale) ? scale : [scale, scale, scale];
 
   const finalRotation = Array.isArray(initialRotation)
     ? initialRotation
     : typeof initialRotation === 'number'
-    ? [0, initialRotation, 0]
-    : [0, 0, 0];
+      ? [0, initialRotation, 0]
+      : [0, 0, 0];
 
   useEffect(() => {
     scene.userData.id = id;

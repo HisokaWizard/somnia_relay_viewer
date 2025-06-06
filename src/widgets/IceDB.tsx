@@ -1,10 +1,10 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, CSSProperties } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { DescriptionContainer } from '@/entities/DescriptionContainer';
 import * as THREE from 'three';
 
-const btnStyle = {
+const btnStyle: CSSProperties = {
   position: 'absolute',
   backgroundColor: '#007bff',
   color: 'white',
@@ -23,12 +23,23 @@ const SceneSetup = () => {
   return null;
 };
 
-const ParticleStream = ({ startPos, endPos, material }) => {
-  const ref = useRef();
+interface ParticleStreamProps {
+  startPos: THREE.Vector3;
+  endPos: THREE.Vector3;
+  material: THREE.Material;
+}
+
+const ParticleStream = ({
+  startPos,
+  endPos,
+  material,
+}: ParticleStreamProps) => {
+  const ref = useRef<THREE.Points | null>(null);
   const count = 20;
   const speed = 0.5;
 
   useFrame((_, delta) => {
+    if (!ref.current) return;
     if (!ref.current.userData.offset) {
       ref.current.userData.offset = 0;
     }
@@ -43,7 +54,9 @@ const ParticleStream = ({ startPos, endPos, material }) => {
 
     for (let i = 0; i < count; i++) {
       const t = (i / count + offset) % 1;
-      const pos = startPos.clone().add(direction.clone().multiplyScalar(t * length));
+      const pos = startPos
+        .clone()
+        .add(direction.clone().multiplyScalar(t * length));
       positions[i * 3] = pos.x;
       positions[i * 3 + 1] = pos.y;
       positions[i * 3 + 2] = pos.z;
@@ -66,9 +79,15 @@ const ParticleStream = ({ startPos, endPos, material }) => {
 
 const cubePosition = new THREE.Vector3(0, 0.5, 0);
 
+interface Metrics {
+  operation: 'Read' | 'Write' | 'Snapshot';
+  ramAccess?: boolean;
+  time: number;
+}
+
 export const IceDB = () => {
   // Состояние для метрик и визуальных эффектов
-  const [metrics, setMetrics] = useState({});
+  const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [showIncoming, setShowIncoming] = useState(false);
   const [showOutgoing, setShowOutgoing] = useState(false);
   const [showSnapshot, setShowSnapshot] = useState(false);
@@ -79,7 +98,15 @@ export const IceDB = () => {
     canvas.width = size;
     canvas.height = size;
     const ctx = canvas.getContext('2d');
-    const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    if (!ctx) return;
+    const gradient = ctx.createRadialGradient(
+      size / 2,
+      size / 2,
+      0,
+      size / 2,
+      size / 2,
+      size / 2
+    );
     gradient.addColorStop(0, 'white');
     gradient.addColorStop(1, 'transparent');
     ctx.fillStyle = gradient;
@@ -95,7 +122,7 @@ export const IceDB = () => {
         transparent: true,
         color: 'coral',
       }),
-    [particleTexture],
+    [particleTexture]
   );
 
   const outgoingparticleMaterial = useMemo(
@@ -106,7 +133,7 @@ export const IceDB = () => {
         transparent: true,
         color: 'lightblue',
       }),
-    [particleTexture],
+    [particleTexture]
   );
 
   const distance = 5;
@@ -121,18 +148,20 @@ export const IceDB = () => {
 
   const incomingStreams = useMemo(() => {
     return directions.map((dir, index) => {
-      const start = cubePosition.clone().add(dir.clone().multiplyScalar(distance));
+      const start = cubePosition
+        .clone()
+        .add(dir.clone().multiplyScalar(distance));
       const end = cubePosition.clone();
       return {
         start: new THREE.Vector3(
           index % 2 !== 0 ? start.x - 0.1 * index : start.x + 0.1 * index,
           start.y,
-          start.z,
+          start.z
         ),
         end: new THREE.Vector3(
           index % 2 !== 0 ? end.x - 0.1 * index : end.x + 0.1 * index,
           end.y,
-          end.z,
+          end.z
         ),
       };
     });
@@ -141,17 +170,19 @@ export const IceDB = () => {
   const outgoingStreams = useMemo(() => {
     return directions.map((dir, index) => {
       const start = cubePosition.clone();
-      const end = cubePosition.clone().add(dir.clone().multiplyScalar(distance));
+      const end = cubePosition
+        .clone()
+        .add(dir.clone().multiplyScalar(distance));
       return {
         start: new THREE.Vector3(
           index % 2 !== 0 ? start.x - 0.1 * index : start.x + 0.1 * index,
           start.y,
-          start.z,
+          start.z
         ),
         end: new THREE.Vector3(
           index % 2 !== 0 ? end.x - 0.1 * index : end.x + 0.1 * index,
           end.y,
-          end.z,
+          end.z
         ),
       };
     });
@@ -184,28 +215,42 @@ export const IceDB = () => {
       <DescriptionContainer>
         <>
           <h2>Metrics</h2>
-          <p>Operation: {metrics.operation || 'No'}</p>
-          <p>Access to RAM: {metrics.ramAccess ? 'Yes' : 'No'}</p>
-          <p>Time: {metrics.time ? `${metrics.time.toFixed(4)} nano sec` : 'Unknown'}</p>
+          <p>Operation: {metrics?.operation || 'No'}</p>
+          <p>Access to RAM: {metrics?.ramAccess ? 'Yes' : 'No'}</p>
+          <p>
+            Time:{' '}
+            {metrics?.time
+              ? `${metrics?.time?.toFixed(4)} nano sec`
+              : 'Unknown'}
+          </p>
         </>
       </DescriptionContainer>
-      <button style={{ ...btnStyle, left: '15px', top: '180px' }} onClick={performRead}>
+      <button
+        style={{ ...btnStyle, left: '15px', top: '180px' }}
+        onClick={performRead}
+      >
         Execute read
       </button>
-      <button style={{ ...btnStyle, left: '15px', top: '210px' }} onClick={performWrite}>
+      <button
+        style={{ ...btnStyle, left: '15px', top: '210px' }}
+        onClick={performWrite}
+      >
         Execute write
       </button>
-      <button style={{ ...btnStyle, left: '15px', top: '240px' }} onClick={takeSnapshot}>
+      <button
+        style={{ ...btnStyle, left: '15px', top: '240px' }}
+        onClick={takeSnapshot}
+      >
         Create snapshot
       </button>
-      <Canvas shadows camera={{ position: [5, 5, 5], fov: 50 }} gl={{ clearColor: 'black' }}>
+      <Canvas shadows camera={{ position: [5, 5, 5], fov: 50 }}>
         <SceneSetup />
         <ambientLight intensity={0.5} />
         <directionalLight castShadow position={[5, 10, 5]} intensity={1} />
 
         <mesh castShadow receiveShadow position={cubePosition}>
           <boxGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial color='green' />
+          <meshStandardMaterial color="green" />
         </mesh>
 
         {showIncoming &&
@@ -231,7 +276,7 @@ export const IceDB = () => {
         {showSnapshot && (
           <mesh position={cubePosition}>
             <boxGeometry args={[1, 1, 1]} />
-            <meshBasicMaterial color='yellow' transparent opacity={0.5} />
+            <meshBasicMaterial color="yellow" transparent opacity={0.5} />
           </mesh>
         )}
 

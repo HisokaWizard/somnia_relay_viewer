@@ -3,13 +3,20 @@ import { useThree, useFrame, useLoader } from '@react-three/fiber';
 import { PointerLockControls, Plane, Html } from '@react-three/drei';
 import { useNavigate } from 'react-router';
 import * as THREE from 'three';
-import { modules } from '@/shared/generalModules';
+import { MainSceneModule, modules } from '@/shared/generalModules';
 import { lines } from '@/shared/lines';
 import { BezierLine } from '@/features/BezierLine';
 import { MeshReflectorMaterial } from '@react-three/drei';
 import { Model3DTemplate } from '@/features/3DModels';
+import { MeshWrapper } from '@/shared';
 
-const textureURL = `${import.meta.env.BASE_URL}textures/technic.jpg`;
+const textureURL = `${process.env.BASE_URL}textures/technic.jpg`;
+
+type MeshLocalWrapper = THREE.Mesh<
+  THREE.BufferGeometry<THREE.NormalBufferAttributes>,
+  THREE.Material | THREE.Material[],
+  THREE.Object3DEventMap
+>;
 
 export const SomniaScene = () => {
   const [keys, setKeys] = useState({
@@ -18,10 +25,13 @@ export const SomniaScene = () => {
     left: false,
     right: false,
   });
-  const [hoveredModule, setHoveredModule] = useState(null);
-  const moduleMeshes = useRef([]);
-  const previousHighlighted = useRef(null);
-  const aimPointRef = useRef();
+  const [hoveredModule, setHoveredModule] = useState<MainSceneModule | null>(
+    null
+  );
+  const moduleMeshes = useRef<MeshLocalWrapper[]>([]);
+  const previousHighlighted =
+    useRef<THREE.Object3D<THREE.Object3DEventMap> | null>(null);
+  const aimPointRef = useRef<MeshWrapper | null>(null);
   const { camera, scene } = useThree();
   const navigate = useNavigate();
   const texture = useLoader(THREE.TextureLoader, textureURL);
@@ -35,7 +45,7 @@ export const SomniaScene = () => {
   }, [scene, texture, camera]);
 
   useEffect(() => {
-    const handleKeyDown = (event) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
       switch (event.key) {
         case 'w':
           setKeys((prev) => ({ ...prev, forward: true }));
@@ -52,7 +62,10 @@ export const SomniaScene = () => {
         case 'Enter':
           const raycaster = new THREE.Raycaster();
           raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
-          const intersects = raycaster.intersectObjects(moduleMeshes.current, true);
+          const intersects = raycaster.intersectObjects(
+            moduleMeshes.current,
+            true
+          );
           if (intersects.length > 0) {
             const hit = intersects[0].object;
             const selectedId = hit.userData.id ?? hit.parent?.userData.id;
@@ -67,7 +80,7 @@ export const SomniaScene = () => {
       }
     };
 
-    const handleKeyUp = (event) => {
+    const handleKeyUp = (event: KeyboardEvent) => {
       switch (event.key) {
         case 'w':
           setKeys((prev) => ({ ...prev, forward: false }));
@@ -153,28 +166,30 @@ export const SomniaScene = () => {
       aimPointRef.current.scale.set(pulse, pulse, pulse);
     }
 
+    let prevHighlighted = previousHighlighted.current as any;
     if (intersects.length > 0) {
       const newHighlighted = intersects[0].object;
+
       if (newHighlighted !== previousHighlighted.current) {
-        if (previousHighlighted.current) {
-          previousHighlighted.current.material.emissive.set(0x000000);
-          previousHighlighted.current.material.emissiveIntensity = 0;
+        if (prevHighlighted) {
+          prevHighlighted.material.emissive.set(0x000000);
+          prevHighlighted.material.emissiveIntensity = 0;
         }
-        newHighlighted.material.emissive.set(0xff0000);
-        newHighlighted.material.emissiveIntensity = 1;
-        previousHighlighted.current = newHighlighted;
+        (newHighlighted as any).material.emissive.set(0xff0000);
+        (newHighlighted as any).material.emissiveIntensity = 1;
+        prevHighlighted = newHighlighted;
       }
     } else {
       if (previousHighlighted.current) {
-        previousHighlighted.current.material.emissive.set(0x000000);
-        previousHighlighted.current.material.emissiveIntensity = 0;
-        previousHighlighted.current = null;
+        prevHighlighted.material.emissive.set(0x000000);
+        prevHighlighted.material.emissiveIntensity = 0;
+        prevHighlighted = null;
       }
     }
 
-    if (previousHighlighted.current) {
+    if (prevHighlighted) {
       const intensity = 0.5 + 0.5 * Math.sin(state.clock.getElapsedTime() * 5);
-      previousHighlighted.current.material.emissiveIntensity = intensity;
+      prevHighlighted.material.emissiveIntensity = intensity;
     }
   });
 
@@ -183,14 +198,21 @@ export const SomniaScene = () => {
       modules.map((module, index) => (
         <mesh
           key={module.id}
-          ref={(el) => (moduleMeshes.current[index] = el)}
-          position={[module.position[0], module.position[1], module.position[2]]}
+          ref={(el) => {
+            if (!el) return;
+            moduleMeshes.current[index] = el;
+          }}
+          position={[
+            module.position[0],
+            module.position[1],
+            module.position[2],
+          ]}
           userData={{ id: module.id }}
         >
           <Model3DTemplate id={module.id} {...module.model} />
         </mesh>
       )),
-    [],
+    []
   );
 
   const logoLines = useMemo(
@@ -207,7 +229,7 @@ export const SomniaScene = () => {
           />
         );
       }),
-    [],
+    []
   );
 
   return (
@@ -215,7 +237,7 @@ export const SomniaScene = () => {
       <ambientLight intensity={1} />
       <pointLight position={[10, 10, 10]} />
 
-      <Plane name='floor' rotation={[-Math.PI / 2, 0, 0]} args={[100, 100]}>
+      <Plane name="floor" rotation={[-Math.PI / 2, 0, 0]} args={[100, 100]}>
         <MeshReflectorMaterial
           blur={[400, 100]}
           resolution={512}
@@ -230,7 +252,7 @@ export const SomniaScene = () => {
 
       <mesh ref={aimPointRef}>
         <sphereGeometry args={[0.1, 16, 16]} />
-        <meshBasicMaterial color='white' />
+        <meshBasicMaterial color="white" />
       </mesh>
 
       {modulesRender}
@@ -238,7 +260,11 @@ export const SomniaScene = () => {
 
       {hoveredModule && (
         <Html
-          style={{ padding: '10px', backgroundColor: 'rgba(0,0,0,0.8)', borderRadius: '8px' }}
+          style={{
+            padding: '10px',
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            borderRadius: '8px',
+          }}
           position={[
             hoveredModule.position[0],
             hoveredModule.position[1],

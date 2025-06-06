@@ -7,13 +7,15 @@ import { TransactionParticles } from '@/features/TransactionParticles';
 import { transactionModules } from '@/shared/transactionModules';
 
 import { useRealtimeTransactions } from './useRealtimeTransactions';
+import { Color } from 'three';
 
 export const RealtimeTransactions = () => {
   const { transactions } = useRealtimeTransactions();
   const { scene } = useThree();
 
   useEffect(() => {
-    scene.background = 'black';
+    const black = new Color(0, 0, 0);
+    scene.background = black;
   }, [scene]);
 
   return (
@@ -31,7 +33,12 @@ export const RealtimeTransactions = () => {
           />
         );
       })}
-      <TransactionParticles transactions={transactions} />
+      <TransactionParticles
+        transactions={transactions}
+        speed={0}
+        size={0}
+        spacing={0}
+      />
 
       <OrbitControls />
     </>

@@ -16,14 +16,21 @@ const totalY = (matrixRow - 1) * rowSpacing;
 const totalZ = (matrixCol - 1) * colSpacing;
 const consensusOffset = 2;
 
+interface HoveredBlock {
+  i: number;
+  j: number;
+}
+
 export const MultistreamConsensusScene = () => {
   const [blocksViewerAmount, setBlocksViewerAmount] = useState(0);
-  const [hoveredBlock, setHoveredBlock] = useState(null);
-  const [hoveredPlane, setHoveredPlane] = useState(null);
+  const [hoveredBlock, setHoveredBlock] = useState<HoveredBlock | null>(null);
+  const [hoveredPlane, setHoveredPlane] = useState<number | null>(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setBlocksViewerAmount((prev) => (prev < blocksAmount - 1 ? prev + 1 : prev));
+      setBlocksViewerAmount((prev) =>
+        prev < blocksAmount - 1 ? prev + 1 : prev
+      );
     }, 2000);
     return () => clearInterval(interval);
   }, []);
@@ -40,7 +47,9 @@ export const MultistreamConsensusScene = () => {
     for (let i = 0; i < validatorsAmount; i++) {
       const row = Math.floor(i / matrixCol);
       const col = i % matrixCol;
-      const color = new THREE.Color(`hsl(${(i / validatorsAmount) * 360}, 100%, 50%)`);
+      const color = new THREE.Color(
+        `hsl(${(i / validatorsAmount) * 360}, 100%, 50%)`
+      );
       for (let j = 0; j <= blocksViewerAmount; j++) {
         const x = j * blockSpacing;
         const y = row * rowSpacing;
@@ -54,7 +63,7 @@ export const MultistreamConsensusScene = () => {
           >
             <boxGeometry args={[0.5, 0.5, 0.5]} />
             <meshStandardMaterial color={color} />
-          </mesh>,
+          </mesh>
         );
       }
     }
@@ -63,7 +72,8 @@ export const MultistreamConsensusScene = () => {
   }, [blocksViewerAmount, setHoveredBlock]);
 
   const currentConsensusPlanes = useMemo(() => {
-    const numConsensus = Math.floor((blocksAmount - consensusOffset) / consensusInterval) + 1;
+    const numConsensus =
+      Math.floor((blocksAmount - consensusOffset) / consensusInterval) + 1;
     const consensusPlanes = [];
 
     for (let i = 0; i < numConsensus; i++) {
@@ -83,10 +93,10 @@ export const MultistreamConsensusScene = () => {
               <meshStandardMaterial
                 transparent
                 opacity={0.7}
-                color='blue'
+                color="blue"
                 side={THREE.DoubleSide}
               />
-            </mesh>,
+            </mesh>
           );
         }
       }
@@ -99,15 +109,16 @@ export const MultistreamConsensusScene = () => {
     () => (
       <DescriptionContainer>
         <>
-          <strong>Animation:</strong> Blocks appear gradually every 2 seconds, reflecting the
-          addition of new blocks to the data chain.
+          <strong>Animation:</strong> Blocks appear gradually every 2 seconds,
+          reflecting the addition of new blocks to the data chain.
           <br />
-          <strong>Interactive:</strong> Rotate the scene with your mouse (OrbitControls). Hover over
-          consensus blocks or planes to see information.
+          <strong>Interactive:</strong> Rotate the scene with your mouse
+          (OrbitControls). Hover over consensus blocks or planes to see
+          information.
         </>
       </DescriptionContainer>
     ),
-    [],
+    []
   );
 
   const descriptionBlocks = useMemo(() => {
@@ -136,10 +147,11 @@ export const MultistreamConsensusScene = () => {
   }, [hoveredBlock]);
 
   const descriptionPlanes = useMemo(() => {
+    const plane = hoveredPlane ? hoveredPlane : 0;
     return hoveredBlock !== null && hoveredBlock !== undefined ? (
       <Html
         position={[
-          consensusOffset + hoveredPlane * consensusInterval * blockSpacing,
+          consensusOffset + plane * consensusInterval * blockSpacing,
           totalY / 2 + totalY / 2 + 0.5,
           totalZ / 2,
         ]}
@@ -156,7 +168,7 @@ export const MultistreamConsensusScene = () => {
           }}
         >
           Consensus Plane {hoveredPlane}: Synchronizes all data chains at block{' '}
-          {consensusOffset + hoveredPlane * consensusInterval}
+          {consensusOffset + plane * consensusInterval}
         </h6>
       </Html>
     ) : null;
@@ -183,14 +195,17 @@ export const MultistreamConsensusScene = () => {
         Repeat interactive
       </button>
     ),
-    [repeatInteractive],
+    [repeatInteractive]
   );
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100vh' }}>
       {description}
       {interavtiveButton}
-      <Canvas scene={{ background: 'black' }} camera={{ position: [-15, 7, 10], fov: 50 }}>
+      <Canvas
+        scene={{ background: new THREE.Color('black') }}
+        camera={{ position: [-15, 7, 10], fov: 50 }}
+      >
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 10, 5]} />
         {currentBlocks}
