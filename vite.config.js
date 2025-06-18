@@ -58,6 +58,9 @@ export default defineConfig(({ command, mode }) => {
         env.VITE_INFURA_API_KEY
       ),
       'process.env.VITE_ANKR_API_KEY': JSON.stringify(env.VITE_ANKR_API_KEY),
+      'process.env.VITE_SUBGRAPH_API_KEY': JSON.stringify(
+        env.VITE_SUBGRAPH_API_KEY
+      ),
       'process.env.BASE_URL': JSON.stringify('/'),
     },
   };

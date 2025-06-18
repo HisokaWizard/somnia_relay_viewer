@@ -1,11 +1,7 @@
 import React, { useRef, useMemo, useEffect } from 'react';
-import { InstancedMeshProps, useFrame } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import {
-  TransactionClasters,
-  transactionModules,
-} from '@/shared/transactionModules';
-import { MeshWrapper } from '@/shared';
+import { transactionModules } from '@/shared/transactionModules';
 
 interface ParticleList {
   module: string;
@@ -14,7 +10,7 @@ interface ParticleList {
 }
 
 interface TransactionParticlesProps {
-  transactions: TransactionClasters;
+  transactions: Array<any>;
   speed: number;
   size: number;
   spacing: number;
@@ -37,13 +33,22 @@ export const TransactionParticles = ({
 
   useEffect(() => {
     const list: ParticleList[] = [];
-    Object.entries(transactions).forEach(([module, count]) => {
-      const startPos = transactionModules.find((it) => it.id === module)
-        ?.position || [0, 0, 0];
-      const startVec = new THREE.Vector3(...startPos);
-      for (let i = 0; i < count; i++) {
-        list.push({ module, startVec, t: -(i / count) * spacing });
+    let counter = 0;
+    transactions.forEach((_transaction) => {
+      if (counter === transactionModules.length - 1) {
+        counter = 0;
       }
+      const startPos = transactionModules[counter].position || [0, 0, 0];
+      const startVec = new THREE.Vector3(...startPos);
+      const amountOfTransactions = Math.round(Math.random() * 20);
+      for (let i = 0; i < amountOfTransactions; i++) {
+        list.push({
+          module: transactionModules[counter].id,
+          startVec,
+          t: -(i / amountOfTransactions) * spacing,
+        });
+      }
+      counter++;
     });
     particles.current = list;
     if (meshRef.current) meshRef.current.count = 0;

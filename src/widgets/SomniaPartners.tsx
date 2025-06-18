@@ -55,7 +55,6 @@ export const SomniaPartners = () => {
     [setHoveredNode, hoveredNode]
   );
 
-  //obj: Object3D, coords: { start: Coords, end: Coords }, link: LinkObject<NodeType, LinkType>
   const linkPositionUpdate = useCallback(
     (
       cylinder: THREE.Object3D,
@@ -135,7 +134,6 @@ export const SomniaPartners = () => {
 
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
-      {/* 3D Граф */}
       <ForceGraph3D
         graphData={somniaPartners}
         onNodeHover={handleNodeHover}
@@ -147,7 +145,6 @@ export const SomniaPartners = () => {
         backgroundColor="#1a1a1a"
       />
 
-      {/* Панель с информацией о компании */}
       {hoveredNode && (
         <div
           style={{

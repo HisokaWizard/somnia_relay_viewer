@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { Html } from '@react-three/drei';
 import { MeshWrapper, NumberVector3 } from '@/shared';
+import { Color } from 'three';
 
 interface TransactionModuleProps {
   position: NumberVector3;
@@ -18,7 +19,7 @@ export const TransactionModule = ({
   return (
     <mesh ref={meshRef} position={position}>
       <octahedronGeometry args={[name === 'Somnia' ? 1 : 0.5, 0]} />
-      <meshStandardMaterial color={color} />
+      <meshStandardMaterial color={new Color(color)} />
 
       <Html position={[0, 1, 0]}>
         <h3 style={{ color: 'lightgreen' }}>{name}</h3>

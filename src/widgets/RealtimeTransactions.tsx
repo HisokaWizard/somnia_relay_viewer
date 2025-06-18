@@ -35,9 +35,9 @@ export const RealtimeTransactions = () => {
       })}
       <TransactionParticles
         transactions={transactions}
-        speed={0}
-        size={0}
-        spacing={0}
+        speed={1}
+        size={0.08}
+        spacing={15}
       />
 
       <OrbitControls />

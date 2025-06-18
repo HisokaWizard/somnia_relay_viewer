@@ -1,58 +1,48 @@
 import { NumberVector3 } from './types';
 
-export type Clasters =
-  | 'DeFi'
-  | 'Gaming'
-  | 'AI/Social'
-  | 'Metaverse/NFT'
-  | 'Infrastructure'
-  | 'Other';
-
 export interface TransactionModule {
-  id: Clasters | 'Somnia';
-  name: Clasters | 'Somnia';
+  id: string;
+  name: string;
   position: NumberVector3;
   color: string;
 }
 
-export type TransactionClasters = Record<Clasters, number>;
-
 export const transactionModules: TransactionModule[] = [
   {
-    id: 'DeFi',
-    name: 'DeFi',
+    id: 'dApp_1',
+    name: 'dApp_1',
     position: [3, 1, 0],
-    color: '0xff0000',
+    color: 'red',
   },
   {
-    id: 'Gaming',
-    name: 'Gaming',
+    id: 'dApp_2',
+    name: 'dApp_2',
     position: [1.5, 1, 2.598],
-    color: '0x00ff00',
+    color: 'green',
   },
   {
-    id: 'AI/Social',
-    name: 'AI/Social',
+    id: 'dApp_3',
+    name: 'dApp_3',
     position: [-1.5, 1, 2.598],
-    color: '0xff00ff',
+    color: 'blue',
   },
   {
-    id: 'Metaverse/NFT',
-    name: 'Metaverse/NFT',
+    id: 'dApp_4',
+    name: 'dApp_4',
     position: [-3, 1, 0],
-    color: '0xffff00',
+    color: 'orange',
   },
   {
-    id: 'Infrastructure',
-    name: 'Infrastructure',
+    id: 'dApp_N',
+    name: 'dApp_N',
     position: [1.5, 1, -2.598],
-    color: '0x0000ff',
+    color: 'violet',
   },
   {
-    id: 'Other',
-    name: 'Other',
+    id: 'dApp...',
+    name: 'dApp...',
     position: [-1.5, 1, -2.598],
-    color: '0xffa500',
+    color: 'aqua',
   },
   {
     id: 'Somnia',

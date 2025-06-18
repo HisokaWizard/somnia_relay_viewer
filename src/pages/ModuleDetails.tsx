@@ -7,7 +7,11 @@ import { OptimisationVisualizer } from '@/widgets/OptimisationVisualizer';
 import { SomniaPartners } from '@/widgets/SomniaPartners';
 import { IceDB } from '@/widgets/IceDB';
 import { Canvas } from '@react-three/fiber';
-import { ankrSomniaUrl } from '@/shared/apis';
+import {
+  ankrSomniaUrl,
+  somniaSubGraphApi,
+  somniaSubgraphConfig,
+} from '@/shared/apis';
 import * as THREE from 'three';
 import axios from 'axios';
 import Web3 from 'web3';
@@ -77,24 +81,21 @@ export const ModuleDetails = () => {
   const { id } = useParams();
   const module = modules.find((m) => m.id === id);
   const Component = module?.id ? moduleRouterMap[module.id] : () => null;
-  const blockNumberRef = useRef(0);
+
   const statsRef = useRef({
+    totalBlocks: 0,
     totalTransactions: 0,
     todayTransactions: 0,
   });
 
   useEffect(() => {
-    if (module?.id !== 'transactions') return;
-    let breakIntervalCounter = 0;
-
     const runQuery = async () => {
       try {
-        const lastBlock = await web3.eth.getBlockNumber();
-        blockNumberRef.current = Number(lastBlock);
         const stats = await axios.get(
           'https://somnia-poc.w3us.site/api/v2/stats'
         );
         statsRef.current = {
+          totalBlocks: 0,
           totalTransactions: Number(stats?.data?.total_transactions ?? 0),
           todayTransactions: Number(stats?.data?.transactions_today ?? 0),
         };
@@ -103,37 +104,31 @@ export const ModuleDetails = () => {
       }
     };
 
-    const poolingQuery = async () => {
+    const runPollingQuery = async () => {
       try {
-        blockNumberRef.current += 50;
-        const txhsUrl = `https://somnia-poc.w3us.site/api/v2/blocks/${
-          blockNumberRef.current - 1000
-        }/transactions`;
-        const transactions = await axios.get(txhsUrl);
-        statsRef.current = {
-          totalTransactions:
-            statsRef.current.totalTransactions +
-            transactions.data?.items?.length * 5,
-          todayTransactions:
-            statsRef.current.todayTransactions +
-            transactions.data?.items?.length * 5,
-        };
-        setTotalBlocks(blockNumberRef.current);
+        const url = `${somniaSubGraphApi}/block/latest`;
+        const response = await axios.get(url, somniaSubgraphConfig);
+
+        const totalBlocks = response?.data?.number ?? 0;
+        const delta =
+          totalBlocks - statsRef.current.totalBlocks <= 0 ||
+          statsRef.current.totalBlocks === 0
+            ? 1
+            : totalBlocks - statsRef.current.totalBlocks;
+        const transactions_increment =
+          (response?.data?.transaction_count ?? 0) * delta;
+
+        statsRef.current.totalBlocks = totalBlocks;
+        statsRef.current.totalTransactions += transactions_increment;
+        statsRef.current.todayTransactions += transactions_increment;
+        setTotalBlocks(totalBlocks);
       } catch (error) {
         console.error(error);
-        breakIntervalCounter++;
-        if (breakIntervalCounter >= 20) {
-          clearInterval(interval);
-          console.info(
-            'Stop polling because of data source can not answer with valid response!'
-          );
-        }
       }
     };
 
-    const interval = setInterval(poolingQuery, 5000);
-
     runQuery();
+    const interval = setInterval(runPollingQuery, 5000);
 
     return () => {
       clearInterval(interval);
