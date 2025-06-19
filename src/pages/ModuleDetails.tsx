@@ -15,6 +15,7 @@ import {
 import * as THREE from 'three';
 import axios from 'axios';
 import Web3 from 'web3';
+import { Quiz } from '@/widgets/Quiz';
 
 const web3 = new Web3(new Web3.providers.HttpProvider(ankrSomniaUrl));
 
@@ -31,6 +32,7 @@ const moduleRouterMap: Record<ModuleRouteId, () => JSX.Element> = {
   ),
   partners: SomniaPartners,
   transactions: RealtimeTransactions,
+  quiz: Quiz,
 };
 
 const generalContainerStyles: CSSProperties = {

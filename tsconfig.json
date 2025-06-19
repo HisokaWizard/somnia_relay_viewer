@@ -13,10 +13,12 @@
         "*"
       ]
     },
-    "moduleResolution": "NodeNext"
+    "moduleResolution": "NodeNext",
+    "resolveJsonModule": true,
   },
   "include": [
     "src",
-    "vite-env.d.ts"
+    "vite-env.d.ts",
+    "scripts/deploy.js"
   ]
 }

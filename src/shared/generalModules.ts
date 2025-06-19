@@ -5,7 +5,8 @@ export type ModuleRouteId =
   | 'icedb'
   | 'evm_optimisation'
   | 'partners'
-  | 'transactions';
+  | 'transactions'
+  | 'quiz';
 
 export interface ModelRotate {
   rotateSpeed: NumberVector3;
@@ -107,6 +108,22 @@ export const modules: MainSceneModule[] = [
       },
       scale: 0.75,
       initialRotation: [0, 0, 0],
+    },
+  },
+  {
+    id: 'quiz',
+    name: 'Quiz',
+    position: [0, 3, -4],
+    color: 'purple',
+    description: 'Transactions in real time',
+    model: {
+      name: 'lotr.glb',
+      rotate: {
+        rotateSpeed: [0, 0, 0],
+        rotateO: [false, true, false],
+      },
+      scale: 0.75,
+      initialRotation: [0, 3, 0],
     },
   },
 ];

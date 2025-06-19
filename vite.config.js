@@ -61,6 +61,7 @@ export default defineConfig(({ command, mode }) => {
       'process.env.VITE_SUBGRAPH_API_KEY': JSON.stringify(
         env.VITE_SUBGRAPH_API_KEY
       ),
+      'process.env.CONTRACT_ADDRESS': JSON.stringify(env.CONTRACT_ADDRESS),
       'process.env.BASE_URL': JSON.stringify('/'),
     },
   };
