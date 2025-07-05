@@ -62,6 +62,10 @@ export default defineConfig(({ command, mode }) => {
         env.VITE_SUBGRAPH_API_KEY
       ),
       'process.env.CONTRACT_ADDRESS': JSON.stringify(env.CONTRACT_ADDRESS),
+      'process.env.OPEN_ROUTER_API_KEY': JSON.stringify(
+        env.OPEN_ROUTER_API_KEY
+      ),
+      'process.env.STABILITY_API_KEY': JSON.stringify(env.STABILITY_API_KEY),
       'process.env.BASE_URL': JSON.stringify('/'),
     },
   };

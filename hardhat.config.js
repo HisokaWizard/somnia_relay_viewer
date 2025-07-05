@@ -14,6 +14,7 @@ module.exports = {
       url: 'https://rpc.ankr.com/somnia_testnet/',
       chainId: 50312,
       accounts: key ? [key] : [],
+      timeout: 60000,
     },
   },
 };

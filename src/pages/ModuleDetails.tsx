@@ -91,6 +91,8 @@ export const ModuleDetails = () => {
   });
 
   useEffect(() => {
+    if (id !== 'transactions') return;
+
     const runQuery = async () => {
       try {
         const stats = await axios.get(
@@ -135,7 +137,7 @@ export const ModuleDetails = () => {
     return () => {
       clearInterval(interval);
     };
-  }, []);
+  }, [id]);
 
   return (
     <div style={generalContainerStyles}>
@@ -144,7 +146,7 @@ export const ModuleDetails = () => {
         <p style={{ marginRight: '20px' }}>{module?.description}</p>
       </div>
       <div style={sceneStyles()}>
-        {module?.id === 'transactions' ? (
+        {id === 'transactions' ? (
           <>
             <div
               style={{

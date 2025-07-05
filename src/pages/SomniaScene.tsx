@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react';
 import { useThree, useFrame, useLoader } from '@react-three/fiber';
 import { PointerLockControls, Plane, Html } from '@react-three/drei';
 import { useNavigate } from 'react-router';
@@ -196,21 +196,23 @@ export const SomniaScene = () => {
   const modulesRender = useMemo(
     () =>
       modules.map((module, index) => (
-        <mesh
-          key={module.id}
-          ref={(el) => {
-            if (!el) return;
-            moduleMeshes.current[index] = el;
-          }}
-          position={[
-            module.position[0],
-            module.position[1],
-            module.position[2],
-          ]}
-          userData={{ id: module.id }}
-        >
-          <Model3DTemplate id={module.id} {...module.model} />
-        </mesh>
+        <Suspense fallback={null} key={module.id}>
+          <mesh
+            key={module.id}
+            ref={(el) => {
+              if (!el) return;
+              moduleMeshes.current[index] = el;
+            }}
+            position={[
+              module.position[0],
+              module.position[1],
+              module.position[2],
+            ]}
+            userData={{ id: module.id }}
+          >
+            <Model3DTemplate id={module.id} {...module.model} />
+          </mesh>
+        </Suspense>
       )),
     []
   );
