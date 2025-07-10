@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { GoogleGenAI } from '@google/genai';
 
 export const ankrSomniaUrl = `https://rpc.ankr.com/somnia_testnet/${
   process.env.VITE_ANKR_API_KEY
@@ -20,7 +21,7 @@ export const requestToOpenRouter = async (context: string) => {
     const url = 'https://openrouter.ai/api/v1/chat/completions';
 
     const data = JSON.stringify({
-      model: 'deepseek/deepseek-r1',
+      model: 'openai/gpt-4-turbo',
       messages: [{ role: 'user', content: context }],
       stream: false,
     });
@@ -32,9 +33,43 @@ export const requestToOpenRouter = async (context: string) => {
       },
     });
 
-    return response.data;
+    const content = response.data.choices?.[0]?.message?.content;
+    return content;
   } catch (error) {
     console.error(error);
+  }
+};
+
+const ai = new GoogleGenAI({
+  apiKey: process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY,
+});
+
+export const requestToGemini = async (
+  context: string
+): Promise<string | undefined> => {
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY;
+
+  if (!apiKey) {
+    console.error(
+      'API ключ для Google Gemini не найден в переменных окружения.'
+    );
+    return;
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [
+        {
+          role: 'user',
+          parts: [{ text: context }],
+        },
+      ],
+    });
+
+    return response.text;
+  } catch (error) {
+    console.error('Gemeny model answer with error:', error);
   }
 };
 

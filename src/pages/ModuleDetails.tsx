@@ -15,7 +15,7 @@ import {
 import * as THREE from 'three';
 import axios from 'axios';
 import Web3 from 'web3';
-import { Quiz } from '@/widgets/Quiz';
+import { Quiz } from '@/widgets/Quiz/Quiz';
 
 const web3 = new Web3(new Web3.providers.HttpProvider(ankrSomniaUrl));
 

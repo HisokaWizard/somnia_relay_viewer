@@ -115,7 +115,7 @@ export const modules: MainSceneModule[] = [
     name: 'Quiz',
     position: [0, 3, -4],
     color: 'purple',
-    description: 'Transactions in real time',
+    description: 'Lord of the Ring Quiz',
     model: {
       name: 'lotr.glb',
       rotate: {

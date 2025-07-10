@@ -66,6 +66,9 @@ export default defineConfig(({ command, mode }) => {
         env.OPEN_ROUTER_API_KEY
       ),
       'process.env.STABILITY_API_KEY': JSON.stringify(env.STABILITY_API_KEY),
+      'process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY': JSON.stringify(
+        env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY
+      ),
       'process.env.BASE_URL': JSON.stringify('/'),
     },
   };
