@@ -21,3 +21,5 @@ App has several compartments:
 Right now - just a dev mode because of app in active development
 
 Project is not my general activity - it is my interesting with Somnia network.
+
+Add deploy file deploy.sh
