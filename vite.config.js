@@ -69,6 +69,9 @@ export default defineConfig(({ command, mode }) => {
       'process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY': JSON.stringify(
         env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY
       ),
+      'process.env.CONTRACT_QUIZ_ADDRESS': JSON.stringify(
+        env.CONTRACT_QUIZ_ADDRESS
+      ),
       'process.env.BASE_URL': JSON.stringify('/'),
     },
   };

@@ -6,7 +6,8 @@ export type ModuleRouteId =
   | 'evm_optimisation'
   | 'partners'
   | 'transactions'
-  | 'quiz';
+  | 'lotr'
+  | 'any_quiz';
 
 export interface ModelRotate {
   rotateSpeed: NumberVector3;
@@ -111,10 +112,26 @@ export const modules: MainSceneModule[] = [
     },
   },
   {
-    id: 'quiz',
-    name: 'Quiz',
-    position: [0, 3, -4],
-    color: 'purple',
+    id: 'any_quiz',
+    name: 'Any Quiz',
+    position: [-3, 3, -4],
+    color: 'violet',
+    description: 'Universal Quiz',
+    model: {
+      name: 'quiz.glb',
+      rotate: {
+        rotateSpeed: [0, 0, 0],
+        rotateO: [false, true, false],
+      },
+      scale: 0.75,
+      initialRotation: [0, 0, 0],
+    },
+  },
+  {
+    id: 'lotr',
+    name: 'LOTR',
+    position: [3, 3, -4],
+    color: 'orange',
     description: 'Lord of the Ring Quiz',
     model: {
       name: 'lotr.glb',
