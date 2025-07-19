@@ -2,12 +2,12 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { v4 as uuidv4 } from 'uuid';
 
-import { requestToOpenRouter } from '@/shared';
+import { requestToOpenRouter, useWeb3State } from '@/shared';
 import { getQuizPackPromptEn } from './Quiz.prompt';
 import { quizStyles } from './Quiz.styles';
-import { useWeb3State } from './useWeb3State';
 import { QuizRules } from './QuizRules';
 import { useNavigate } from 'react-router';
+import GameLifecycleABI from '../../../artifacts/contracts/GameLifecycle.sol/GameLifecycleNative.json';
 
 const getStakeAmount = (questionRange: number) => {
   const calculatedStake = Math.max(0.01, questionRange / 100);
@@ -32,6 +32,8 @@ type QuestionLifecycleState =
   | 'AWAITING_ANSWER'
   | 'AWAITING_TX_CONFIRMATION'
   | 'GAME_OVER';
+
+const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS ?? '';
 
 export const Quiz = () => {
   const [questionState, setQuestionState] =
@@ -213,7 +215,12 @@ export const Quiz = () => {
   }, [timer, questionState, handleAnswer]);
 
   const renderGameContent = () => {
-    if (!account) return <button onClick={connect}>Connect Wallet</button>;
+    if (!account)
+      return (
+        <button onClick={() => connect(CONTRACT_ADDRESS, GameLifecycleABI.abi)}>
+          Connect Wallet
+        </button>
+      );
 
     switch (questionState) {
       case 'GENERATING_QUIZ':

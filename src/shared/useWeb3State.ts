@@ -1,6 +1,5 @@
 import { ethers } from 'ethers';
 import { useCallback, useEffect, useState } from 'react';
-import GameLifecycleABI from '../../../artifacts/contracts/GameLifecycle.sol/GameLifecycleNative.json';
 
 type LogEntry = { time: string; msg: string };
 
@@ -18,8 +17,6 @@ const SOMNIA_PARAMS = {
   rpcUrls: ['https://testnet-rpc.somnia.network/'],
   blockExplorerUrls: ['https://testnet.somniascan.io/'],
 };
-
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS ?? '';
 
 export const useWeb3State = () => {
   const [provider, setProvider] = useState<ethers.providers.Web3Provider>();
@@ -67,36 +64,35 @@ export const useWeb3State = () => {
     }
   }, [log]);
 
-  const connect = useCallback(async () => {
-    if (!provider) {
-      log('Provider not found.');
-      return;
-    }
-    try {
-      await ensureCorrectChain();
-      const [addr] = await provider.send('eth_requestAccounts', []);
-      const sig = provider.getSigner();
-      const c = new ethers.Contract(
-        CONTRACT_ADDRESS,
-        GameLifecycleABI.abi,
-        sig
-      );
-
-      setAccount(addr);
-      setSigner(sig);
-      setContract(c);
-
-      log(`✅ Wallet connected: ${addr}`);
-
-      const ownerAddress = await c.owner();
-      if (addr.toLowerCase() === ownerAddress.toLowerCase()) {
-        setIsOwner(true);
-        log('👑 You are connected as the contract owner.');
+  const connect = useCallback(
+    async (contractAddress: string, abi: any) => {
+      if (!provider) {
+        log('Provider not found.');
+        return;
       }
-    } catch (error: any) {
-      log(`❗ Connection error: ${error.message}`);
-    }
-  }, [log, provider, ensureCorrectChain]);
+      try {
+        await ensureCorrectChain();
+        const [addr] = await provider.send('eth_requestAccounts', []);
+        const sig = provider.getSigner();
+        const c = new ethers.Contract(contractAddress, abi, sig);
+
+        setAccount(addr);
+        setSigner(sig);
+        setContract(c);
+
+        log(`✅ Wallet connected: ${addr}`);
+
+        const ownerAddress = await c.owner();
+        if (addr.toLowerCase() === ownerAddress.toLowerCase()) {
+          setIsOwner(true);
+          log('👑 You are connected as the contract owner.');
+        }
+      } catch (error: any) {
+        log(`❗ Connection error: ${error.message}`);
+      }
+    },
+    [log, provider, ensureCorrectChain]
+  );
 
   return {
     log,
