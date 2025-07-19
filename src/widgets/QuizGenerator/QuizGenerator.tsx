@@ -267,7 +267,10 @@ export const GameWidget = () => {
         return (
           <div>
             <div className="loader"></div>
-            <p>The Ainur are forging questions...</p>
+            <p>
+              The great spirits of quizzes are preparing incredible questions
+              for you...
+            </p>
           </div>
         );
       case 'QUIZ_READY':
