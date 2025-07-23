@@ -88,7 +88,7 @@ export const GameWidget = () => {
       const levels = Array.from({ length: 10 }, () =>
         Math.round(Math.random() * 100)
       );
-      const prompt = getUniversalQuizPromptRu(topic, 'human', levels);
+      const prompt = getUniversalQuizPromptEn(topic, 'human', levels);
       const content = await requestToOpenRouter(prompt);
 
       const pack: LLMGameData[] = JSON.parse(content);
