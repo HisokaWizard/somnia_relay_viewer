@@ -29,10 +29,10 @@ export const getContractBalance = async (contractAddress: string) => {
   return ethers.utils.formatEther(balance);
 };
 
-export const useWeb3State = () => {
+export const useWeb3State = (contractAddress: string, abi: any) => {
   const [provider, setProvider] = useState<ethers.providers.Web3Provider>();
-  const [signer, setSigner] = useState<ethers.Signer>();
-  const [contract, setContract] = useState<ethers.Contract>();
+  const [signer, setSigner] = useState<ethers.Signer | null>();
+  const [contract, setContract] = useState<ethers.Contract | null>();
   const [account, setAccount] = useState<string>('');
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -48,11 +48,28 @@ export const useWeb3State = () => {
     if (window.ethereum) {
       const p = new ethers.providers.Web3Provider(window.ethereum, 'any');
       setProvider(p);
-      log('MetaMask detected. Please connect your wallet.');
+      p.listAccounts().then((accounts) => {
+        if (accounts.length > 0) {
+          setAccount(accounts[0]);
+          const sig = p.getSigner();
+          setSigner(sig);
+          const c = new ethers.Contract(contractAddress, abi, sig);
+          setContract(c);
+          log(`✅ Automatically connected: ${accounts[0]}`);
+          c.owner().then((owner: any) => {
+            if (accounts[0].toLowerCase() === owner.toLowerCase()) {
+              setIsOwner(true);
+              log('👑 You are connected like contract owner.');
+            }
+          });
+        } else {
+          log('MetaMask detected. Please connect your wallet.');
+        }
+      });
     } else {
       log('MetaMask not detected. Please install the extension to play.');
     }
-  }, [log]);
+  }, [log, contractAddress, abi]);
 
   const ensureCorrectChain = useCallback(async () => {
     try {
@@ -75,35 +92,40 @@ export const useWeb3State = () => {
     }
   }, [log]);
 
-  const connect = useCallback(
-    async (contractAddress: string, abi: any) => {
-      if (!provider) {
-        log('Provider not found.');
-        return;
+  const connect = useCallback(async () => {
+    if (!provider) {
+      log('Provider not found.');
+      return;
+    }
+    try {
+      await ensureCorrectChain();
+      const [addr] = await provider.send('eth_requestAccounts', []);
+      const sig = provider.getSigner();
+      const c = new ethers.Contract(contractAddress, abi, sig);
+
+      setAccount(addr);
+      setSigner(sig);
+      setContract(c);
+
+      log(`✅ Wallet connected: ${addr}`);
+
+      const ownerAddress = await c.owner();
+      if (addr.toLowerCase() === ownerAddress.toLowerCase()) {
+        setIsOwner(true);
+        log('👑 You are connected as the contract owner.');
       }
-      try {
-        await ensureCorrectChain();
-        const [addr] = await provider.send('eth_requestAccounts', []);
-        const sig = provider.getSigner();
-        const c = new ethers.Contract(contractAddress, abi, sig);
+    } catch (error: any) {
+      log(`❗ Connection error: ${error.message}`);
+    }
+  }, [log, provider, ensureCorrectChain, contractAddress, abi]);
 
-        setAccount(addr);
-        setSigner(sig);
-        setContract(c);
-
-        log(`✅ Wallet connected: ${addr}`);
-
-        const ownerAddress = await c.owner();
-        if (addr.toLowerCase() === ownerAddress.toLowerCase()) {
-          setIsOwner(true);
-          log('👑 You are connected as the contract owner.');
-        }
-      } catch (error: any) {
-        log(`❗ Connection error: ${error.message}`);
-      }
-    },
-    [log, provider, ensureCorrectChain]
-  );
+  const disconnect = useCallback(() => {
+    setSigner(null);
+    setContract(null);
+    setAccount('');
+    setIsOwner(false);
+    log('Wallet disconnected.');
+  }, [log]);
 
   return {
     log,
@@ -114,5 +136,6 @@ export const useWeb3State = () => {
     account,
     isOwner,
     logs,
+    disconnect,
   };
 };

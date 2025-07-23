@@ -43,7 +43,10 @@ export const Quiz = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [timer, setTimer] = useState<number>(0);
 
-  const { log, connect, contract, account, isOwner, logs } = useWeb3State();
+  const { log, connect, contract, account, isOwner, logs } = useWeb3State(
+    CONTRACT_ADDRESS,
+    GameLifecycleABI.abi
+  );
   const navigate = useNavigate();
 
   const handleGenerateQuiz = useCallback(async () => {
@@ -215,12 +218,7 @@ export const Quiz = () => {
   }, [timer, questionState, handleAnswer]);
 
   const renderGameContent = () => {
-    if (!account)
-      return (
-        <button onClick={() => connect(CONTRACT_ADDRESS, GameLifecycleABI.abi)}>
-          Connect Wallet
-        </button>
-      );
+    if (!account) return <button onClick={connect}>Connect Wallet</button>;
 
     switch (questionState) {
       case 'GENERATING_QUIZ':

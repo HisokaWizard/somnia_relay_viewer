@@ -15,6 +15,7 @@ import { GameRules } from './QuizGenerator.rules';
 import { v4 as uuidv4 } from 'uuid';
 import { keccak256 } from 'js-sha3';
 import { ethers } from 'ethers';
+import { AnswerReview, QuizAnswerReview } from './QuizAnswerReview';
 
 type LLMGameData = {
   question: string;
@@ -59,7 +60,7 @@ type GameState =
   | 'GAME_OVER';
 
 const countTimer = (quizPack: GameData, index: number) => {
-  return Math.max(10, Math.floor(quizPack.questions[index].difficulty / 2));
+  return Math.max(15, Math.floor(quizPack.questions[index].difficulty / 2));
 };
 
 export const GameWidget = () => {
@@ -73,10 +74,12 @@ export const GameWidget = () => {
   >(null);
   const [topic, setTopic] = useState('The Witcher 3 Wild Hunt');
   const [timer, setTimer] = useState<number>(0);
+  const [answersForReview, setAnswersForReview] = useState<AnswerReview[]>([]);
 
   const navigate = useNavigate();
 
-  const { log, connect, contract, account, isOwner, logs } = useWeb3State();
+  const { log, connect, contract, account, isOwner, logs, disconnect } =
+    useWeb3State(CONTRACT_ADDRESS, OptimizedQuizGameABI.abi);
 
   const handleGenerateQuiz = useCallback(async () => {
     setGameState('GENERATING_QUIZ');
@@ -195,8 +198,20 @@ export const GameWidget = () => {
 
     try {
       let finalPrize = 0;
+      const quizAnswerReiew: AnswerReview[] = [];
       userQuestionData.forEach((it, index) => {
         const question = quizPack.questions[index];
+        const correctAnswer = question.options.find(
+          (option) => keccak256(option) === question.correctAnswerHash
+        );
+        const answerFromUser = question.options.find(
+          (option) => keccak256(option) === it.answerHash
+        );
+        quizAnswerReiew.push({
+          question: question.question,
+          correctAnswer: correctAnswer ?? 'Answer not exist',
+          playerAnswer: answerFromUser ?? 'Answer not exist',
+        });
         if (
           it.id === question.id &&
           it.answerHash === question.correctAnswerHash
@@ -204,6 +219,7 @@ export const GameWidget = () => {
           finalPrize += question.cost * 2;
         }
       });
+      setAnswersForReview(quizAnswerReiew);
       const finalPrizeWei = ethers.utils.parseEther(finalPrize.toString());
       log(`You will get your final result: ${finalPrize} STT`);
       const tx = await contract.endGame(
@@ -239,6 +255,7 @@ export const GameWidget = () => {
     setCurrentQuestionIndex(null);
     setUserQuestionData([]);
     setTimer(0);
+    setAnswersForReview([]);
     log('A new trial awaits...');
   }, [log]);
 
@@ -280,10 +297,7 @@ export const GameWidget = () => {
   const renderGameContent = () => {
     if (!account)
       return (
-        <button
-          className="btn"
-          onClick={() => connect(CONTRACT_ADDRESS, OptimizedQuizGameABI.abi)}
-        >
+        <button className="btn" onClick={connect}>
           Connect Wallet
         </button>
       );
@@ -391,6 +405,9 @@ export const GameWidget = () => {
               <button className="btn" onClick={() => navigate('/')}>
                 Exit to Main Page
               </button>
+              {answersForReview.length !== 0 ? (
+                <QuizAnswerReview answers={answersForReview} />
+              ) : null}
             </div>
           </div>
         );
@@ -422,6 +439,16 @@ export const GameWidget = () => {
           {renderGameContent()}
         </div>
         <div className="log-panel">
+          {account ? (
+            <div className="wallet-status">
+              <div className="wallet-container">
+                <span>
+                  Connected: {account.slice(0, 6)}...{account.slice(-4)}
+                </span>
+                <button onClick={disconnect}>Disconnect</button>
+              </div>
+            </div>
+          ) : null}
           <GameRules
             stake={quizPack?.fullCost ? `${quizPack.fullCost} STT` : null}
           />

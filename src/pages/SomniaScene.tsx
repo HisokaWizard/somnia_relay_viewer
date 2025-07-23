@@ -141,6 +141,15 @@ export const SomniaScene = () => {
 
     const time = state.clock.getElapsedTime();
 
+    let notReady = false;
+    moduleMeshes.current.forEach((it) => {
+      if (!it) {
+        notReady = true;
+      }
+    });
+
+    if (notReady || moduleMeshes.current.length !== modules.length) return;
+
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
     const intersects = raycaster.intersectObjects(moduleMeshes.current, true);

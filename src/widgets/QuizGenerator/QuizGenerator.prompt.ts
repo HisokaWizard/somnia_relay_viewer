@@ -21,6 +21,7 @@ Each object in the array represents a single question and MUST have the followin
 - "question" (string): The text of the question itself.
 - "options" (array of 4 strings): An array containing exactly four possible answers. One of these options MUST be the correct answer.
 - "correctAnswer" (string): The correct answer. The value of this key MUST be an exact, case-sensitive match to one of the four strings in the "options" array.
+- Quiestion must be max - 100-120 symbols
 
 ---
 EXAMPLE OF THE FINAL JSON STRUCTURE:
@@ -65,6 +66,7 @@ export const getUniversalQuizPromptRu = (
 - "question" (string): Текст самого вопроса.
 - "options" (array of 4 strings): Массив, содержащий ровно четыре варианта ответа. Один из этих вариантов ОБЯЗАТЕЛЬНО должен быть правильным.
 - "correctAnswer" (string): Правильный ответ. Значение этого ключа ДОЛЖНО ТОЧНО СОВПАДАТЬ (с учетом регистра) с одной из четырех строк в массиве "options".
+- Вопрос должен быть максимум 100-120 символов
 
 ---
 ПРИМЕР ИТОГОВОЙ СТРУКТУРЫ JSON:
