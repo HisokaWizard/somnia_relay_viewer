@@ -25,10 +25,10 @@ export const SomniaScene = () => {
     left: false,
     right: false,
   });
+  const moduleMeshes = useRef<MeshLocalWrapper[]>([]);
   const [hoveredModule, setHoveredModule] = useState<MainSceneModule | null>(
     null
   );
-  const moduleMeshes = useRef<MeshLocalWrapper[]>([]);
   const previousHighlighted =
     useRef<THREE.Object3D<THREE.Object3DEventMap> | null>(null);
   const aimPointRef = useRef<MeshWrapper | null>(null);
