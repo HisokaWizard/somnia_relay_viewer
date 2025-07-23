@@ -72,6 +72,7 @@ export default defineConfig(({ command, mode }) => {
       'process.env.CONTRACT_QUIZ_ADDRESS': JSON.stringify(
         env.CONTRACT_QUIZ_ADDRESS
       ),
+      'process.env.DEPLOYER_ADDRESS': JSON.stringify(env.DEPLOYER_ADDRESS),
       'process.env.BASE_URL': JSON.stringify('/'),
     },
   };

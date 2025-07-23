@@ -14,8 +14,19 @@ const SOMNIA_PARAMS = {
   chainId: CHAIN_ID_HEX,
   chainName: 'Somnia Testnet',
   nativeCurrency: { name: 'Test ETH', symbol: 'ETH', decimals: 18 },
-  rpcUrls: ['https://testnet-rpc.somnia.network/'],
+  rpcUrls: [
+    'https://testnet-rpc.somnia.network/',
+    'https://dream-rpc.somnia.network/',
+  ],
   blockExplorerUrls: ['https://testnet.somniascan.io/'],
+};
+
+export const getContractBalance = async (contractAddress: string) => {
+  const provider = new ethers.providers.JsonRpcProvider(
+    SOMNIA_PARAMS.rpcUrls[1]
+  );
+  const balance = await provider.getBalance(contractAddress);
+  return ethers.utils.formatEther(balance);
 };
 
 export const useWeb3State = () => {

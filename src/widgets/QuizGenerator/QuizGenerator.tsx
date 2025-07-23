@@ -1,13 +1,20 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ethers } from 'ethers';
-import { requestToOpenRouter, useWeb3State } from '@/shared';
-import { getUniversalQuizPromptEn } from './QuizGenerator.prompt';
+import {
+  getContractBalance,
+  requestToOpenRouter,
+  useWeb3State,
+} from '@/shared';
+import {
+  getUniversalQuizPromptEn,
+  getUniversalQuizPromptRu,
+} from './QuizGenerator.prompt';
 import OptimizedQuizGameABI from '../../../artifacts/contracts/OptimizedQuizGame.sol/OptimizedQuizGame.json';
 import { useNavigate } from 'react-router';
 import { WidgetStyles } from './QuizGenerator.styles';
 import { GameRules } from './QuizGenerator.rules';
 import { v4 as uuidv4 } from 'uuid';
 import { keccak256 } from 'js-sha3';
+import { ethers } from 'ethers';
 
 type LLMGameData = {
   question: string;
@@ -32,7 +39,7 @@ type QuestionData = {
 };
 
 type GameData = {
-  id: string;
+  id: number;
   questions: QuestionData[];
   fullCost: number;
 };
@@ -46,9 +53,14 @@ type GameState =
   | 'QUIZ_READY'
   | 'AWAITING_COMMIT'
   | 'GAME_IN_PROGRESS'
+  | 'GAME_WAIT_NEXT_QUESTION'
   | 'GAME_FINISHED'
   | 'AWAITING_REVEAL'
   | 'GAME_OVER';
+
+const countTimer = (quizPack: GameData, index: number) => {
+  return Math.max(10, Math.floor(quizPack.questions[index].difficulty / 2));
+};
 
 export const GameWidget = () => {
   const [gameState, setGameState] = useState<GameState>('IDLE');
@@ -59,7 +71,7 @@ export const GameWidget = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<
     number | null
   >(null);
-  const [topic, setTopic] = useState('The Lord of the Rings');
+  const [topic, setTopic] = useState('The Witcher 3 Wild Hunt');
   const [timer, setTimer] = useState<number>(0);
 
   const navigate = useNavigate();
@@ -73,11 +85,7 @@ export const GameWidget = () => {
       const levels = Array.from({ length: 10 }, () =>
         Math.round(Math.random() * 100)
       );
-      const prompt = getUniversalQuizPromptEn(
-        topic,
-        `an unparalleled expert on ${topic}`,
-        levels
-      );
+      const prompt = getUniversalQuizPromptRu(topic, 'human', levels);
       const content = await requestToOpenRouter(prompt);
 
       const pack: LLMGameData[] = JSON.parse(content);
@@ -94,7 +102,7 @@ export const GameWidget = () => {
       );
 
       const game: GameData = {
-        id: uuidv4(),
+        id: Date.now(),
         questions: questions,
         fullCost: questions.reduce((prev, curr) => prev + curr.cost, 0),
       };
@@ -117,37 +125,38 @@ export const GameWidget = () => {
     log(`Calculating your commitment...`);
 
     try {
-      log(`Your Game ID: ${ethers.utils.hexlify(quizPack.id).slice(0, 10)}...`);
-      log(
-        `Total stake: ${ethers.utils.formatEther(quizPack.fullCost)} STT. Please confirm transaction.`
-      );
+      log(`Your Game ID: ${quizPack.id}...`);
+      log(`Total stake: ${quizPack.fullCost} STT. Please confirm transaction.`);
 
-      const tx = await contract.startGame(quizPack.id, quizPack.fullCost);
+      const fullCostWei = ethers.utils.parseEther(quizPack.fullCost.toString());
+      const tx = await contract.startGame(
+        ethers.BigNumber.from(quizPack.id),
+        fullCostWei,
+        { value: fullCostWei }
+      );
 
       await tx.wait();
 
       log('✅ Commitment successful! The timed trial begins NOW!');
 
-      const questionTimer = Math.max(
-        10,
-        Math.floor(quizPack.questions[0].difficulty / 2)
-      );
-      setTimer(questionTimer);
+      setTimer(countTimer(quizPack, 0));
       setCurrentQuestionIndex(0);
       setGameState('GAME_IN_PROGRESS');
     } catch (error: any) {
       log(`❗ Error committing to game: ${error.message}`);
       setGameState('QUIZ_READY');
     }
-  }, [contract, log, quizPack]);
+  }, [contract, log, quizPack, countTimer]);
 
   const handleNextQuestion = useCallback(() => {
     if (!quizPack || currentQuestionIndex === null) {
       throw 'No quiz pack or game not started';
     }
 
+    setTimer(countTimer(quizPack, currentQuestionIndex + 1));
     setCurrentQuestionIndex(currentQuestionIndex + 1);
-  }, [quizPack, currentQuestionIndex, log]);
+    setGameState('GAME_IN_PROGRESS');
+  }, [quizPack, currentQuestionIndex, log, countTimer]);
 
   const handleAnswerSelect = useCallback(
     (answer: string) => {
@@ -163,6 +172,8 @@ export const GameWidget = () => {
         question: quizPack.questions[currentQuestionIndex].question,
       };
       setUserQuestionData((prev) => [...prev, userAnswer]);
+      setGameState('GAME_WAIT_NEXT_QUESTION');
+      setTimer(0);
 
       log(`You selected: "${answer}"`);
 
@@ -172,10 +183,8 @@ export const GameWidget = () => {
           "🏁 You have answered all questions! Press 'Finish Game' to claim your result."
         );
       }
-
-      setTimer(0);
     },
-    [currentQuestionIndex]
+    [currentQuestionIndex, quizPack]
   );
 
   const handleEndGame = useCallback(async () => {
@@ -195,7 +204,13 @@ export const GameWidget = () => {
           finalPrize += question.cost * 2;
         }
       });
-      const tx = await contract.endGame(quizPack.id, finalPrize);
+      const finalPrizeWei = ethers.utils.parseEther(finalPrize.toString());
+      log(`You will get your final result: ${finalPrize} STT`);
+      const tx = await contract.endGame(
+        ethers.BigNumber.from(quizPack.id),
+        finalPrizeWei,
+        { value: finalPrizeWei }
+      );
       await tx.wait();
 
       log(`⚔️ Your trial is complete! The Oracle has judged your performance.`);
@@ -214,27 +229,53 @@ export const GameWidget = () => {
 
     if (timer === 0 && gameState === 'GAME_IN_PROGRESS') {
       log('⏳ Time is over. Answer written as incorrect, sorry.');
-      const answerHash = keccak256('Player answer incorrect');
-
-      if (!quizPack || currentQuestionIndex === null) {
-        throw 'No quiz pack or game not started';
-      }
-
-      const userAnswer: UserQuestionData = {
-        answerHash,
-        id: quizPack.questions[currentQuestionIndex].id,
-        question: quizPack.questions[currentQuestionIndex].question,
-      };
-      setUserQuestionData((prev) => [...prev, userAnswer]);
+      handleAnswerSelect('Player answer incorrect');
     }
-  }, [timer, quizPack]);
+  }, [timer, handleAnswerSelect]);
 
   const resetGame = useCallback(() => {
     setGameState('CUSTOMIZING');
     setQuizPack(null);
     setCurrentQuestionIndex(null);
+    setUserQuestionData([]);
+    setTimer(0);
     log('A new trial awaits...');
   }, [log]);
+
+  const handleWithdraw = useCallback(async () => {
+    if (!contract || !isOwner) {
+      log('This is only for owner.');
+      return;
+    }
+    log('💰 Owner take all rewards...');
+    try {
+      const address = process.env.CONTRACT_QUIZ_ADDRESS ?? '';
+      const balance = await getContractBalance(address);
+      const result = Number(balance) - 10;
+      if (result <= 0) return;
+      const needToWithdraw = ethers.utils.parseEther(result.toString());
+      const tx = await contract.withdraw(needToWithdraw);
+      await tx.wait();
+      log('✅ Tokens succesfully move to onwer address.');
+    } catch (error: any) {
+      log(`❗ Error of tokens moving: ${error.message}`);
+    }
+  }, [contract, isOwner]);
+
+  const finalizeInactiveGames = useCallback(async () => {
+    if (!contract || !isOwner) {
+      log('This is only for owner.');
+      return;
+    }
+    log('💰 Owner finalize expired games and send all loans to contrsct...');
+    try {
+      const tx = await contract.endExpiredGames();
+      await tx.wait();
+      log('✅ Tokens succesfully move to onwer address.');
+    } catch (error: any) {
+      log(`❗ Error of tokens moving: ${error.message}`);
+    }
+  }, [contract, isOwner]);
 
   const renderGameContent = () => {
     if (!account)
@@ -250,22 +291,22 @@ export const GameWidget = () => {
     switch (gameState) {
       case 'CUSTOMIZING':
         return (
-          <div className="w-full max-w-md text-center">
-            <h2 className="font-fantasy text-3xl mb-4">Challenge the Oracle</h2>
+          <div className="verical-game-container">
+            <h2 className="font-fantasy">Challenge the Oracle</h2>
             <input
               type="text"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              className="w-full p-3 bg-gray-900/50 border border-violet-700 rounded-lg text-center text-lg focus:ring-2 focus:ring-violet-500 focus:outline-none mb-4 input-theme"
+              className="input-theme"
             />
             <button className="btn" onClick={handleGenerateQuiz}>
-              Forge My Trial
+              Write your own any idea
             </button>
           </div>
         );
       case 'GENERATING_QUIZ':
         return (
-          <div>
+          <div className="verical-game-container">
             <div className="loader"></div>
             <p>
               The great spirits of quizzes are preparing incredible questions
@@ -274,14 +315,10 @@ export const GameWidget = () => {
           </div>
         );
       case 'QUIZ_READY':
-        // Этап ответов для коммита
         return (
-          <div className="w-full">
-            <h2 className="font-fantasy text-2xl mb-4">Prepare Your Answers</h2>
-            <p className="text-gray-400 mb-4">
-              Answer these to form your commitment. No timer yet.
-            </p>
-            {/* Здесь может быть список всех вопросов для ответов */}
+          <div className="verical-game-container">
+            <h2 className="font-fantasy">Prepare Your Answers</h2>
+            <p>Answer these to form your commitment. No timer yet.</p>
             <button className="btn btn-green" onClick={handleStartGame}>
               Lock Answers & Start Game
             </button>
@@ -290,7 +327,7 @@ export const GameWidget = () => {
       case 'AWAITING_COMMIT':
       case 'AWAITING_REVEAL':
         return (
-          <div>
+          <div className="verical-game-container">
             <div className="loader"></div>
             <p>Awaiting confirmation in your wallet...</p>
           </div>
@@ -299,11 +336,16 @@ export const GameWidget = () => {
         const q = quizPack?.questions[currentQuestionIndex ?? 0];
         return (
           <div
-            className="w-full max-w-3xl text-center no-copy"
+            className="no-copy verical-game-container"
             onContextMenu={(e) => e.preventDefault()}
           >
             <div className="timer">{timer}s</div>
-            <h2 className="text-2xl mb-6">{q?.question}</h2>
+            <div
+              className="font-fantasy"
+              style={{ fontSize: '32px', textAlign: 'center' }}
+            >
+              {q?.question}
+            </div>
             <div className="options-grid">
               {q?.options.map((opt) => (
                 <button
@@ -317,13 +359,19 @@ export const GameWidget = () => {
             </div>
           </div>
         );
+      case 'GAME_WAIT_NEXT_QUESTION':
+        return (
+          <div className="verical-game-container">
+            <button className="btn" onClick={handleNextQuestion}>
+              Next question
+            </button>
+          </div>
+        );
       case 'GAME_FINISHED':
         return (
-          <div>
-            <h3 className="font-fantasy text-3xl text-amber-300 mb-4">
-              Trial Complete!
-            </h3>
-            <p className="mb-6">
+          <div className="verical-game-container">
+            <h3>Your Quiz Complete!</h3>
+            <p>
               Your answers have been recorded. Reveal them now to receive
               judgment from the Oracle.
             </p>
@@ -334,11 +382,9 @@ export const GameWidget = () => {
         );
       case 'GAME_OVER':
         return (
-          <div>
-            <h3 className="font-fantasy text-3xl text-green-400 mb-4">
-              The Trial is Over!
-            </h3>
-            <div className="flex">
+          <div className="verical-game-container">
+            <h3 className="font-fantasy">The Trial is Over!</h3>
+            <div className="verical-game-container">
               <button className="btn" onClick={resetGame}>
                 Play Again
               </button>
@@ -362,18 +408,24 @@ export const GameWidget = () => {
     <>
       <WidgetStyles />
       <div className="game-widget-container">
-        <div className="game-panel">{renderGameContent()}</div>
+        <div className="game-panel">
+          {isOwner ? (
+            <div className="verical-game-container">
+              <button className="btn" onClick={handleWithdraw}>
+                Withdraw contract treasures
+              </button>
+              <button className="btn" onClick={finalizeInactiveGames}>
+                Finalize all inactive games
+              </button>
+            </div>
+          ) : null}
+          {renderGameContent()}
+        </div>
         <div className="log-panel">
           <GameRules
-            stake={
-              quizPack?.fullCost
-                ? `${ethers.utils.formatEther(quizPack.fullCost)} STT`
-                : null
-            }
+            stake={quizPack?.fullCost ? `${quizPack.fullCost} STT` : null}
           />
-          <h3 className="font-fantasy text-lg text-center text-amber-300 mb-4">
-            Scroll of Events
-          </h3>
+          <h3 className="font-fantasy">Scroll of Events</h3>
           <div className="log-entries-container">
             {logs.map((l, i) => (
               <div key={i} className="log-entry">

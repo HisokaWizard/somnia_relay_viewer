@@ -29,10 +29,15 @@ contract OptimizedQuizGame {
         activeGames.push(gameID);
     }
 
-    function endGame(uint gameID, uint winnings) public onlyOwner {
+    function endGame(uint gameID, uint winnings) public payable {
+        require(games[gameID].player == msg.sender, 'Not your game');
+        require(
+            block.timestamp - games[gameID].timestamp <= 600,
+            'Game expired'
+        );
         require(games[gameID].player != address(0), 'Game does not exist');
         uint cost = games[gameID].cost;
-        require(winnings <= 2 * cost, 'Winnings too high');
+        require(winnings <= (3 * cost) / 2, 'Winnings too high');
         require(address(this).balance >= winnings, 'Insufficient balance');
         for (uint i = 0; i < activeGames.length; i++) {
             if (activeGames[i] == gameID) {
