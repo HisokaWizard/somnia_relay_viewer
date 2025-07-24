@@ -1,16 +1,14 @@
 import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react';
-import { useThree, useFrame, useLoader } from '@react-three/fiber';
-import { PointerLockControls, Plane, Html } from '@react-three/drei';
+import { useThree, useFrame } from '@react-three/fiber';
+import { PointerLockControls, Html } from '@react-three/drei';
 import { useNavigate } from 'react-router';
 import * as THREE from 'three';
 import { MainSceneModule, modules } from '@/shared/generalModules';
 import { lines } from '@/shared/lines';
 import { BezierLine } from '@/features/BezierLine';
-import { MeshReflectorMaterial } from '@react-three/drei';
 import { Model3DTemplate } from '@/features/3DModels';
 import { MeshWrapper } from '@/shared';
-
-const textureURL = `${process.env.BASE_URL}textures/technic.jpg`;
+import { SceneStarrySky } from '@/entities/SceneStarrySky';
 
 type MeshLocalWrapper = THREE.Mesh<
   THREE.BufferGeometry<THREE.NormalBufferAttributes>,
@@ -34,15 +32,11 @@ export const SomniaScene = () => {
   const aimPointRef = useRef<MeshWrapper | null>(null);
   const { camera, scene } = useThree();
   const navigate = useNavigate();
-  const texture = useLoader(THREE.TextureLoader, textureURL);
 
   useEffect(() => {
-    texture.mapping = THREE.EquirectangularReflectionMapping;
-    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-    scene.background = texture;
-    scene.environment = texture;
+    scene.background = new THREE.Color('#000011');
     camera.rotation.set(0.2, 0, 0);
-  }, [scene, texture, camera]);
+  }, [scene, camera]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -248,18 +242,9 @@ export const SomniaScene = () => {
       <ambientLight intensity={1} />
       <pointLight position={[10, 10, 10]} />
 
-      <Plane name="floor" rotation={[-Math.PI / 2, 0, 0]} args={[100, 100]}>
-        <MeshReflectorMaterial
-          blur={[400, 100]}
-          resolution={512}
-          mixBlur={1}
-          mixStrength={0.8}
-          roughness={0.1}
-          metalness={0.9}
-          mirror={0.5}
-          side={2}
-        />
-      </Plane>
+      <Suspense fallback={null}>
+        <SceneStarrySky />
+      </Suspense>
 
       <mesh ref={aimPointRef}>
         <sphereGeometry args={[0.1, 16, 16]} />

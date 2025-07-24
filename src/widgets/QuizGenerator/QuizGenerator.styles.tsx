@@ -1,6 +1,5 @@
 export const WidgetStyles = () => (
   <style>{`
-    /* Импорт шрифтов и общие стили */
     @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&family=Lato:wght@400;700&display=swap');
 
     .game-widget-container {
@@ -24,7 +23,6 @@ export const WidgetStyles = () => (
       100% { background-position: 0% 50%; }
     }
 
-    /* Стили для фантастического шрифта и блокировки копирования */
     .font-fantasy { 
       font-family: 'MedievalSharp', cursive; 
     }
@@ -42,7 +40,6 @@ export const WidgetStyles = () => (
       -moz-user-select: none; 
     }
 
-    /* Добавлен переход для эффектов при наведении на панели */
     .game-panel, .log-panel {
       background: rgba(10, 20, 30, 0.7);
       border: 1px solid #4a2c6e;
@@ -54,13 +51,11 @@ export const WidgetStyles = () => (
       transition: all 0.3s ease; /* Добавлен переход */
     }
 
-    /* Эффекты при наведении: панели слегка увеличиваются и тень становится интенсивнее */
     .game-panel:hover, .log-panel:hover {
       transform: scale(1.01);
       box-shadow: 0 0 50px rgba(76, 29, 149, 0.5);
     }
 
-    /* Стили для панелей игры и логов */
     .game-panel { 
       flex: 3; 
       display: flex; 
@@ -78,10 +73,9 @@ export const WidgetStyles = () => (
       margin-right: 48px;
     }
 
-    /* Новые стили для секции статуса кошелька */
     .wallet-status {
-      background-color: #581c87; /* Фон в цвете бренда */
-      color: #facc15; /* Текст в контрастном цвете */
+      background-color: #581c87;
+      color: #facc15;
       padding: 10px;
       border-radius: 8px;
       margin-bottom: 16px;
@@ -91,13 +85,13 @@ export const WidgetStyles = () => (
     }
 
     .wallet-status span {
-      font-weight: bold; /* Утолщенный текст для адреса */
+      font-weight: bold;
     }
 
     .wallet-status button {
-      background-color: #581c87; /* Фон кнопки в цвете бренда */
-      color: #facc15; /* Текст кнопки в контрастном цвете */
-      border: 2px solid #facc15; /* Граница кнопки */
+      background-color: #581c87;
+      color: #facc15;
+      border: 2px solid #facc15;
       padding: 8px 16px;
       border-radius: 4px;
       cursor: pointer;
@@ -106,11 +100,10 @@ export const WidgetStyles = () => (
     }
 
     .wallet-status button:hover {
-      background-color: #facc15; /* Смена цвета фона при наведении */
-      color: #1e1b4b; /* Смена цвета текста при наведении */
+      background-color: #facc15;
+      color: #1e1b4b;
     }
 
-    /* Стили для правил игры */
     .log-rules {
       margin-bottom: 16px;
       flex-shrink: 0;
@@ -122,31 +115,27 @@ export const WidgetStyles = () => (
       overflow-y: auto;
     }
 
-    /* Стили для контейнера логов */
     .log-entries-container { 
       flex-grow: 1; 
       overflow-y: auto; 
       padding-right: 10px; 
     }
 
-    /* Улучшенные стили для каждой записи лога */
     .log-entry { 
       margin-bottom: 8px; 
       font-size: 0.9em; 
       line-height: 1.5; 
       padding: 8px;
-      background-color: rgba(255, 255, 255, 0.1); /* Легкий фон для читаемости */
-      border-left: 4px solid #facc15; /* Акцентная граница в цвете бренда */
+      background-color: rgba(255, 255, 255, 0.1);
+      border-left: 4px solid #facc15;
       border-radius: 4px;
     }
 
-    /* Стили для времени в логах */
     .log-time { 
       color: #888; 
       margin-right: 10px; 
     }
 
-    /* Общие стили для кнопок */
     .btn {
       font-family: 'MedievalSharp', cursive;
       background-color: #581c87;
@@ -183,14 +172,12 @@ export const WidgetStyles = () => (
       color: #14532d; 
     }
 
-    /* Стили для вертикального контейнера игры */
     .verical-game-container {
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
-    /* Стили для темы ввода */
     .input-theme {
       border-radius: 8px;
       border: 2px solid #facc15;
@@ -210,7 +197,6 @@ export const WidgetStyles = () => (
       background-color: rgba(156, 163, 175, 0.7);
     }
 
-    /* Стили для индикатора загрузки */
     .loader {
       border: 8px solid #f3f3f340;
       border-top: 8px solid #a78bfa;
@@ -226,7 +212,6 @@ export const WidgetStyles = () => (
       100% { transform: rotate(360deg); } 
     }
 
-    /* Стили для таймера */
     .timer { 
       font-size: 2.5em; 
       color: #facc15; 
@@ -234,7 +219,6 @@ export const WidgetStyles = () => (
       font-weight: bold; 
     }
 
-    /* Стили для сетки опций */
     .options-grid { 
       display: grid; 
       grid-template-columns: 1fr 1fr; 
@@ -305,7 +289,6 @@ export const WidgetStyles = () => (
     padding: 10px;
   }
 
-    /* Новые стили для компонента AnswerReview */
   .answer-review {
     background: rgba(10, 20, 30, 0.7);
     border: 1px solid #4a2c6e;
@@ -331,7 +314,7 @@ export const WidgetStyles = () => (
   }
 
   .correct-answer {
-    color: #86efac; /* Зеленый для правильных ответов */
+    color: #86efac;
     margin-bottom: 4px;
   }
 
@@ -340,39 +323,11 @@ export const WidgetStyles = () => (
   }
 
   .player-answer.correct {
-    color: #86efac; /* Зеленый для правильных ответов игрока */
+    color: #86efac;
   }
 
   .player-answer.incorrect {
-    color: #f87171; /* Красный для неправильных ответов */
+    color: #f87171;
   }
-
-  // /* Новый медиа-запрос для адаптивной верстки */
-  // @media (max-width: 768px) {
-  //   /* Изменение направления flex-контейнера на столбец */
-  //   .game-widget-container {
-  //     flex-direction: column;
-  //     gap: 16px; /* Уменьшение зазора между панелями */
-  //     padding: 12px; /* Уменьшение отступов для мобильных устройств */
-  //     margin-right: 64px;
-  //     overflow-y: auto;
-  //     height: 100%;
-  //   }
-
-  //   /* Обе панели занимают полную ширину */
-  //   .game-panel, .log-panel {
-  //     width: 100%;
-  //   }
-
-  //   /* Удаление правого отступа у панели логов */
-  //   .log-panel {
-  //     margin-right: 0;
-  //   }
-
-  //   /* Изменение сетки опций на один столбец */
-  //   .options-grid {
-  //     grid-template-columns: 1fr;
-  //   }
-  // }
   `}</style>
 );
