@@ -36,6 +36,7 @@ export const useWeb3State = (contractAddress: string, abi: any) => {
   const [account, setAccount] = useState<string>('');
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const log = useCallback((m: string) => {
     setLogs((prev) => [
@@ -72,6 +73,18 @@ export const useWeb3State = (contractAddress: string, abi: any) => {
   }, [log, contractAddress, abi]);
 
   const ensureCorrectChain = useCallback(async () => {
+    if (!window.ethereum) throw new Error('No crypto wallet found');
+
+    const currentChainId = await window.ethereum.request({
+      method: 'eth_chainId',
+    });
+
+    if (currentChainId === CHAIN_ID_HEX) {
+      log('✅ Already on the correct network: Somnia Testnet');
+      return;
+    }
+
+    log('🔄 Attempting to switch network...');
     try {
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
@@ -92,14 +105,28 @@ export const useWeb3State = (contractAddress: string, abi: any) => {
     }
   }, [log]);
 
+  const disconnect = useCallback(() => {
+    setSigner(null);
+    setContract(null);
+    setAccount('');
+    setIsOwner(false);
+    log('Wallet disconnected.');
+  }, [log]);
+
   const connect = useCallback(async () => {
     if (!provider) {
       log('Provider not found.');
       return;
     }
+    setIsConnecting(true);
+    log('🚀 Initiating connection...');
+
     try {
-      await ensureCorrectChain();
       const [addr] = await provider.send('eth_requestAccounts', []);
+      log(`✅ Wallet access granted for: ${addr}`);
+
+      await ensureCorrectChain();
+
       const sig = provider.getSigner();
       const c = new ethers.Contract(contractAddress, abi, sig);
 
@@ -113,19 +140,16 @@ export const useWeb3State = (contractAddress: string, abi: any) => {
       if (addr.toLowerCase() === ownerAddress.toLowerCase()) {
         setIsOwner(true);
         log('👑 You are connected as the contract owner.');
+      } else {
+        setIsOwner(false);
       }
     } catch (error: any) {
-      log(`❗ Connection error: ${error.message}`);
+      log(`❗ Connection process failed: ${error.message}`);
+      disconnect();
+    } finally {
+      setIsConnecting(false);
     }
-  }, [log, provider, ensureCorrectChain, contractAddress, abi]);
-
-  const disconnect = useCallback(() => {
-    setSigner(null);
-    setContract(null);
-    setAccount('');
-    setIsOwner(false);
-    log('Wallet disconnected.');
-  }, [log]);
+  }, [log, provider, ensureCorrectChain, contractAddress, abi, disconnect]);
 
   return {
     log,
@@ -137,5 +161,6 @@ export const useWeb3State = (contractAddress: string, abi: any) => {
     isOwner,
     logs,
     disconnect,
+    isConnecting,
   };
 };
