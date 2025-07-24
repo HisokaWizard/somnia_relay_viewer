@@ -60,6 +60,8 @@ const countTimer = (quizPack: GameData, index: number) => {
   return Math.max(15, Math.floor(quizPack.questions[index].difficulty / 2));
 };
 
+const winKoef = 1.5;
+
 export const GameWidget = () => {
   const [gameState, setGameState] = useState<GameState>('IDLE');
   const [quizPack, setQuizPack] = useState<GameData | null>();
@@ -221,7 +223,7 @@ export const GameWidget = () => {
           it.id === question.id &&
           it.answerHash === question.correctAnswerHash
         ) {
-          finalPrize += question.cost * 2;
+          finalPrize += question.cost * winKoef;
         }
       });
       setAnswersForReview(quizAnswerReiew);
