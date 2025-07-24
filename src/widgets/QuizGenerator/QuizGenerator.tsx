@@ -1,13 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   getContractBalance,
   requestToOpenRouter,
   useWeb3State,
 } from '@/shared';
-import {
-  getUniversalQuizPromptEn,
-  getUniversalQuizPromptRu,
-} from './QuizGenerator.prompt';
+import { getUniversalQuizPromptEn } from './QuizGenerator.prompt';
 import OptimizedQuizGameABI from '../../../artifacts/contracts/OptimizedQuizGame.sol/OptimizedQuizGame.json';
 import { useNavigate } from 'react-router';
 import { WidgetStyles } from './QuizGenerator.styles';
@@ -78,8 +75,16 @@ export const GameWidget = () => {
 
   const navigate = useNavigate();
 
-  const { log, connect, contract, account, isOwner, logs, disconnect } =
-    useWeb3State(CONTRACT_ADDRESS, OptimizedQuizGameABI.abi);
+  const {
+    log,
+    connect,
+    contract,
+    account,
+    isOwner,
+    logs,
+    disconnect,
+    provider,
+  } = useWeb3State(CONTRACT_ADDRESS, OptimizedQuizGameABI.abi);
 
   const handleGenerateQuiz = useCallback(async () => {
     setGameState('GENERATING_QUIZ');
@@ -224,8 +229,7 @@ export const GameWidget = () => {
       log(`You will get your final result: ${finalPrize} STT`);
       const tx = await contract.endGame(
         ethers.BigNumber.from(quizPack.id),
-        finalPrizeWei,
-        { value: finalPrizeWei }
+        finalPrizeWei
       );
       await tx.wait();
 
@@ -268,9 +272,7 @@ export const GameWidget = () => {
     try {
       const address = process.env.CONTRACT_QUIZ_ADDRESS ?? '';
       const balance = await getContractBalance(address);
-      const result = Number(balance) - 10;
-      if (result <= 0) return;
-      const needToWithdraw = ethers.utils.parseEther(result.toString());
+      const needToWithdraw = ethers.utils.parseEther(balance);
       const tx = await contract.withdraw(needToWithdraw);
       await tx.wait();
       log('✅ Tokens succesfully move to onwer address.');
