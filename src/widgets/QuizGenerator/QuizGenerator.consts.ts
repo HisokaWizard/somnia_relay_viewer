@@ -50,3 +50,10 @@ export const mockContent = `[
     "correctAnswer": "Big Four of Novigrad"
   }
 ]`;
+
+export const BASE_PRICE_OPTIONS = [
+  { label: 'Nobie', value: 0.00001, description: 'A super light trial' },
+  { label: 'Acolyte', value: 0.0001, description: 'A light trial' },
+  { label: 'Adept', value: 0.001, description: 'A worthy challenge' },
+  { label: 'Master', value: 0.01, description: 'A trial of legends' },
+];

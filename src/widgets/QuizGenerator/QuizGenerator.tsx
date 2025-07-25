@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { keccak256 } from 'js-sha3';
 import { ethers } from 'ethers';
 import { AnswerReview, QuizAnswerReview } from './QuizAnswerReview';
+import { BASE_PRICE_OPTIONS } from './QuizGenerator.consts';
 
 type LLMGameData = {
   question: string;
@@ -74,6 +75,9 @@ export const GameWidget = () => {
   const [topic, setTopic] = useState('The Witcher 3 Wild Hunt');
   const [timer, setTimer] = useState<number>(0);
   const [answersForReview, setAnswersForReview] = useState<AnswerReview[]>([]);
+  const [basePrice, setBasePrice] = useState<number>(
+    BASE_PRICE_OPTIONS[0].value
+  );
 
   const navigate = useNavigate();
 
@@ -107,7 +111,7 @@ export const GameWidget = () => {
           correctAnswerHash: keccak256(question.correctAnswer),
           options: question.options,
           difficulty: levels[index],
-          cost: levels[index] * 0.01,
+          cost: levels[index] * basePrice,
         })
       );
 
@@ -126,7 +130,7 @@ export const GameWidget = () => {
       log(`❗ Error generating quiz: ${error.message}`);
       setGameState('CUSTOMIZING');
     }
-  }, [log, topic]);
+  }, [log, topic, basePrice]);
 
   const handleStartGame = useCallback(async () => {
     if (!contract || !quizPack) return log('Contract or quiz not ready.');
@@ -136,7 +140,9 @@ export const GameWidget = () => {
 
     try {
       log(`Your Game ID: ${quizPack.id}...`);
-      log(`Total stake: ${quizPack.fullCost} STT. Please confirm transaction.`);
+      log(
+        `Total stake: ${quizPack.fullCost.toFixed(6)} STT. Please confirm transaction.`
+      );
 
       const fullCostWei = ethers.utils.parseEther(quizPack.fullCost.toString());
       const tx = await contract.startGame(
@@ -228,7 +234,7 @@ export const GameWidget = () => {
       });
       setAnswersForReview(quizAnswerReiew);
       const finalPrizeWei = ethers.utils.parseEther(finalPrize.toString());
-      log(`You will get your final result: ${finalPrize} STT`);
+      log(`You will get your final result: ${finalPrize.toFixed(6)} STT`);
       const tx = await contract.endGame(
         ethers.BigNumber.from(quizPack.id),
         finalPrizeWei
@@ -317,8 +323,22 @@ export const GameWidget = () => {
               onChange={(e) => setTopic(e.target.value)}
               className="input-theme"
             />
+
+            <div className="price-options-container">
+              {BASE_PRICE_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  className={`btn price-option ${basePrice === option.value ? 'active' : ''}`}
+                  onClick={() => setBasePrice(option.value)}
+                >
+                  <div className="price-label">{option.label}</div>
+                  <div className="price-value">{option.value} STT</div>
+                </button>
+              ))}
+            </div>
+
             <button className="btn" onClick={handleGenerateQuiz}>
-              Write your own any idea
+              Forge My Destiny
             </button>
           </div>
         );
