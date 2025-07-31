@@ -12,6 +12,7 @@ import * as THREE from 'three';
 import axios from 'axios';
 import { Quiz } from '@/widgets/Quiz/Quiz';
 import { GameWidget } from '@/widgets/QuizGenerator';
+import { NFTStaking } from '@/widgets/SpecificTestContract/NFTStaking';
 
 const moduleRouterMap: Record<ModuleRouteId, () => JSX.Element> = {
   multistream: MultistreamConsensusScene,
@@ -28,6 +29,7 @@ const moduleRouterMap: Record<ModuleRouteId, () => JSX.Element> = {
   transactions: RealtimeTransactions,
   lotr: Quiz,
   any_quiz: GameWidget,
+  nft_staking: NFTStaking,
 };
 
 const generalContainerStyles: CSSProperties = {

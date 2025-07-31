@@ -73,6 +73,9 @@ export default defineConfig(({ command, mode }) => {
         env.CONTRACT_QUIZ_ADDRESS
       ),
       'process.env.DEPLOYER_ADDRESS': JSON.stringify(env.DEPLOYER_ADDRESS),
+      'process.env.CONTRACT_NFT_STAKING': JSON.stringify(
+        env.CONTRACT_NFT_STAKING
+      ),
       'process.env.BASE_URL': JSON.stringify('/'),
     },
   };

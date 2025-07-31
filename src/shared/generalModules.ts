@@ -7,7 +7,8 @@ export type ModuleRouteId =
   | 'partners'
   | 'transactions'
   | 'lotr'
-  | 'any_quiz';
+  | 'any_quiz'
+  | 'nft_staking';
 
 export interface ModelRotate {
   rotateSpeed: NumberVector3;
@@ -133,6 +134,22 @@ export const modules: MainSceneModule[] = [
     position: [3, 3, -4],
     color: 'orange',
     description: 'Lord of the Ring Quiz',
+    model: {
+      name: 'lotr.glb',
+      rotate: {
+        rotateSpeed: [0, 0, 0],
+        rotateO: [false, true, false],
+      },
+      scale: 0.75,
+      initialRotation: [0, 3, 0],
+    },
+  },
+  {
+    id: 'nft_staking',
+    name: 'NFT_Staking',
+    position: [-10, -10, -10],
+    color: 'red',
+    description: 'NFT_Staking',
     model: {
       name: 'lotr.glb',
       rotate: {

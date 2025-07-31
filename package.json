@@ -8,6 +8,7 @@
     "compile": "hardhat compile",
     "deploy": "hardhat run scripts/deploy.js --network somnia",
     "deploy:quiz": "hardhat run scripts/deploy_quiz.js --network somnia",
+    "deploy:nft_staking": "hardhat run scripts/deploy_nft_staking.js --network somnia",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
