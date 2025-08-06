@@ -28,7 +28,7 @@ const moduleRouterMap: Record<ModuleRouteId, () => JSX.Element> = {
   partners: SomniaPartners,
   transactions: RealtimeTransactions,
   lotr: Quiz,
-  any_quiz: GameWidget,
+  infinite_quiz: GameWidget,
   nft_staking: NFTStaking,
 };
 

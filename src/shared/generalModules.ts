@@ -7,7 +7,7 @@ export type ModuleRouteId =
   | 'partners'
   | 'transactions'
   | 'lotr'
-  | 'any_quiz'
+  | 'infinite_quiz'
   | 'nft_staking';
 
 export interface ModelRotate {
@@ -20,11 +20,13 @@ export interface Model3D {
   rotate: ModelRotate;
   scale: number;
   initialRotation: NumberVector3;
+  imageName: string;
 }
 
 export interface MainSceneModule {
   id: ModuleRouteId;
   name: string;
+
   position: NumberVector3;
   color: string;
   description: string;
@@ -44,8 +46,9 @@ export const modules: MainSceneModule[] = [
         rotateSpeed: [0, 0, 0.01],
         rotateO: [false, false, true],
       },
-      scale: 0.75,
-      initialRotation: [1.6, 0, 0],
+      scale: 1.25,
+      initialRotation: [0, 0, 0],
+      imageName: 'multistream_pipe.png',
     },
   },
   {
@@ -60,8 +63,9 @@ export const modules: MainSceneModule[] = [
         rotateSpeed: [0, 0.01, 0],
         rotateO: [false, true, false],
       },
-      scale: 0.75,
+      scale: 1.25,
       initialRotation: [0, 0, 0],
+      imageName: 'ice_db.png',
     },
   },
   {
@@ -78,6 +82,7 @@ export const modules: MainSceneModule[] = [
       },
       scale: 0.85,
       initialRotation: [0, 0, 0],
+      imageName: 'evm_optimisation.png',
     },
   },
   {
@@ -92,8 +97,9 @@ export const modules: MainSceneModule[] = [
         rotateSpeed: [0, 0, 0.01],
         rotateO: [false, false, true],
       },
-      scale: 0.75,
-      initialRotation: [1.6, 0, 0],
+      scale: 1.25,
+      initialRotation: [0, 0, 0],
+      imageName: 'partnerships_bros.png',
     },
   },
   {
@@ -108,24 +114,26 @@ export const modules: MainSceneModule[] = [
         rotateSpeed: [0, -0.005, 0],
         rotateO: [false, true, false],
       },
-      scale: 0.75,
+      scale: 1.25,
       initialRotation: [0, 0, 0],
+      imageName: 'somnia_logo.png',
     },
   },
   {
-    id: 'any_quiz',
-    name: 'Any Quiz',
+    id: 'infinite_quiz',
+    name: 'Infinite Quiz',
     position: [-3, 3, -4],
     color: 'violet',
-    description: 'Universal Quiz',
+    description: 'Infinite Quiz',
     model: {
       name: 'quiz.glb',
       rotate: {
         rotateSpeed: [0, 0, 0],
         rotateO: [false, true, false],
       },
-      scale: 0.75,
+      scale: 1.25,
       initialRotation: [0, 0, 0],
+      imageName: 'quiz.png',
     },
   },
   {
@@ -140,24 +148,26 @@ export const modules: MainSceneModule[] = [
         rotateSpeed: [0, 0, 0],
         rotateO: [false, true, false],
       },
-      scale: 0.75,
-      initialRotation: [0, 3, 0],
+      scale: 1.25,
+      initialRotation: [0, 0, 0],
+      imageName: 'lotr.png',
     },
   },
   {
     id: 'nft_staking',
     name: 'NFT_Staking',
-    position: [-10, -10, -10],
+    position: [0, 3, -4],
     color: 'red',
     description: 'NFT_Staking',
     model: {
-      name: 'lotr.glb',
+      name: 'nft_staking.glb',
       rotate: {
         rotateSpeed: [0, 0, 0],
         rotateO: [false, true, false],
       },
-      scale: 0.75,
-      initialRotation: [0, 3, 0],
+      scale: 1.25,
+      initialRotation: [0, 0, 0],
+      imageName: 'nft_staking.png',
     },
   },
 ];
