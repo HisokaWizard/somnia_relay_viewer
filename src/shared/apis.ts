@@ -16,12 +16,15 @@ export const somniaSubgraphConfig = {
   timeout: 20000,
 };
 
-export const requestToOpenRouter = async (context: string) => {
+export const requestToOpenRouter = async (
+  context: string,
+  otherModel?: string
+) => {
   try {
     const url = 'https://openrouter.ai/api/v1/chat/completions';
 
     const data = JSON.stringify({
-      model: 'openai/gpt-4-turbo',
+      model: otherModel ?? 'qwen/qwen3-coder:free',
       messages: [{ role: 'user', content: context }],
       stream: false,
     });
@@ -29,6 +32,8 @@ export const requestToOpenRouter = async (context: string) => {
     const response = await axios.post(url, data, {
       headers: {
         Authorization: `Bearer ${process.env.OPEN_ROUTER_API_KEY}`,
+        'HTTP-Referer': 'https://somniapresentor.info/',
+        'X-Title': 'Somnia Presentor',
         'Content-Type': 'application/json',
       },
     });
@@ -37,6 +42,7 @@ export const requestToOpenRouter = async (context: string) => {
     return content;
   } catch (error) {
     console.error(error);
+    await requestToOpenRouter(context, 'openai/gpt-5-chat');
   }
 };
 
