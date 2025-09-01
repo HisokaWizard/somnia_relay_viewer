@@ -20,7 +20,7 @@ let breakCycle = 0;
 export const requestToOpenRouter = async (
   context: string,
   otherModel?: string
-) => {
+): Promise<string> => {
   const listOfModels = [
     'qwen/qwen3-32b',
     'nousresearch/hermes-4-70b',
@@ -45,7 +45,7 @@ export const requestToOpenRouter = async (
       },
     });
 
-    const content = response.data.choices?.[0]?.message?.content;
+    const content: string = response.data.choices?.[0]?.message?.content;
     breakCycle = 0;
 
     return content;
@@ -58,7 +58,7 @@ export const requestToOpenRouter = async (
     breakCycle++;
     const modelIndex = breakCycle - 1;
     console.error(error);
-    await requestToOpenRouter(
+    return await requestToOpenRouter(
       context,
       listOfModels[modelIndex < 0 || modelIndex > 2 ? 0 : modelIndex]
     );
