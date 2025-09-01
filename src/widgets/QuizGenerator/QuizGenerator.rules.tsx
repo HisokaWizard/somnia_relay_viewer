@@ -9,7 +9,8 @@ export const GameRules = ({ stake }: { stake: string | null }) => {
         className="font-fantasy rules-header"
         onClick={() => setShowRules(true)}
       >
-        The Game's Rules - Read It. {stake ? `Your stake: ${stake}` : null}
+        The Game's Rules - Read It.{' '}
+        {stake ? `Your stake: ${stake.slice(0, 8)}` : null}
       </h4>
       {showRules && (
         <div className="modal-overlay" onClick={() => setShowRules(false)}>

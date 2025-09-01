@@ -94,13 +94,21 @@ export const GameWidget = () => {
 
   const handleGenerateQuiz = useCallback(async () => {
     setGameState('GENERATING_QUIZ');
-    log('🔮 Generating 10 questions based on your topic...');
+    log(
+      '🔮 Generating 10 questions based on your topic..., P.S. It can be not super fast, because LLM generate quiz right now!) Be patient!)'
+    );
     try {
       const levels = Array.from({ length: 10 }, () =>
         Math.round(Math.random() * 100)
       );
       const prompt = getUniversalQuizPromptEn(topic, 'human', levels);
       const content = await requestToOpenRouter(prompt);
+
+      if (!content) {
+        throw new Error(
+          'Quiz is empty! You should announced about it to author!'
+        );
+      }
 
       const pack: LLMGameData[] = JSON.parse(content);
       const questions: QuestionData[] = pack.map(

@@ -16,6 +16,7 @@ export const somniaSubgraphConfig = {
   timeout: 20000,
 };
 
+let breakCycle = 0;
 export const requestToOpenRouter = async (
   context: string,
   otherModel?: string
@@ -39,10 +40,18 @@ export const requestToOpenRouter = async (
     });
 
     const content = response.data.choices?.[0]?.message?.content;
+    breakCycle = 0;
+
     return content;
   } catch (error) {
+    if (breakCycle >= 5) {
+      throw new Error(
+        'Sorry, something wrong with LLM service! It will fix as soon as possible!'
+      );
+    }
+    breakCycle++;
     console.error(error);
-    await requestToOpenRouter(context, 'openai/gpt-5-chat');
+    await requestToOpenRouter(context, 'google/gemini-2.5-pro');
   }
 };
 
