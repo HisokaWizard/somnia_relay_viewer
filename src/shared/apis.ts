@@ -21,6 +21,12 @@ export const requestToOpenRouter = async (
   context: string,
   otherModel?: string
 ) => {
+  const listOfModels = [
+    'qwen/qwen3-32b',
+    'nousresearch/hermes-4-70b',
+    'google/gemini-2.5-pro',
+  ];
+
   try {
     const url = 'https://openrouter.ai/api/v1/chat/completions';
 
@@ -50,8 +56,12 @@ export const requestToOpenRouter = async (
       );
     }
     breakCycle++;
+    const modelIndex = breakCycle - 1;
     console.error(error);
-    await requestToOpenRouter(context, 'google/gemini-2.5-pro');
+    await requestToOpenRouter(
+      context,
+      listOfModels[modelIndex < 0 || modelIndex > 2 ? 0 : modelIndex]
+    );
   }
 };
 
